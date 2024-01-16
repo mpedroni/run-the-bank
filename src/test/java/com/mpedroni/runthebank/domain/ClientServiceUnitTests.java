@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +25,17 @@ public class ClientServiceUnitTests {
         assertThat(customer.name()).isEqualTo("John Doe");
         assertThat(customer.document()).isEqualTo("12345678900");
         assertThat(customer.address()).isEqualTo("123 Main St");
+    }
+
+    @Test
+    public void throwsWhenTheGivenDocumentAlreadyExists() {
+        when(clientGateway.exists(aDocument)).thenReturn(true);
+
+        var thrown = catchThrowable(() -> sut.createCustomer(aName, aDocument, anAddress, aPassword));
+
+        assertThat(thrown)
+            .isInstanceOf(ApplicationException.class)
+            .hasMessage("A customer with the given document already exists");
     }
 
     @Test

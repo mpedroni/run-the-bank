@@ -2,7 +2,6 @@ package com.mpedroni.runthebank.infra;
 
 import com.mpedroni.runthebank.domain.Client;
 import com.mpedroni.runthebank.domain.ClientGateway;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,5 +24,10 @@ public class ClientGatewayHibernate implements ClientGateway {
             ClientTypeJpa.fromDomain(customer.type())
         );
         clientRepository.save(entity);
+    }
+
+    @Override
+    public Boolean exists(String aDocument) {
+        return clientRepository.findByDocument(aDocument).isPresent();
     }
 }
