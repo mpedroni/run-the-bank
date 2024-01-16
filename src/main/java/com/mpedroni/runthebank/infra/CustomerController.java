@@ -1,6 +1,7 @@
 package com.mpedroni.runthebank.infra;
 
 import com.mpedroni.runthebank.domain.ClientService;
+import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,13 +19,13 @@ public class CustomerController {
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody CreateCustomerRequest request) {
-        clientService.createCustomer(
+        var customer = clientService.createCustomer(
             request.name(),
             request.document(),
             request.address(),
             request.password()
         );
 
-        return ResponseEntity.created(null).build();
+        return ResponseEntity.created(URI.create(customer.id().toString())).build();
     }
 }

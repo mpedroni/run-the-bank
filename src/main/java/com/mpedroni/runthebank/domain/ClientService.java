@@ -11,7 +11,10 @@ public class ClientService {
         this.clientGateway = clientGateway;
     }
 
-    public void createCustomer(String name, String document, String address, String password) {
-        clientGateway.createCustomer(UUID.randomUUID(), name, document, address, password);
+    public Client createCustomer(String name, String document, String address, String password) {
+        var customer = new Client(UUID.randomUUID(), name, document, address, password, ClientType.CUSTOMER);
+        clientGateway.createCustomer(customer);
+
+        return customer;
     }
 }

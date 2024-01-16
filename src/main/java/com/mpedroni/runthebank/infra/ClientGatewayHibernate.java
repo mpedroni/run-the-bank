@@ -1,11 +1,13 @@
 package com.mpedroni.runthebank.infra;
 
+import com.mpedroni.runthebank.domain.Client;
 import com.mpedroni.runthebank.domain.ClientGateway;
-import java.util.UUID;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
-@Repository
+@Service
 public class ClientGatewayHibernate implements ClientGateway {
+
     private final ClientRepository clientRepository;
 
     public ClientGatewayHibernate(ClientRepository clientRepository) {
@@ -13,8 +15,15 @@ public class ClientGatewayHibernate implements ClientGateway {
     }
 
     @Override
-    public void createCustomer(UUID id, String name, String document, String address, String password) {
-        var entity = new ClientJpaEntity(id, name, document, address, password, ClientTypeJpa.CUSTOMER);
+    public void createCustomer(Client customer) {
+        var entity = new ClientJpaEntity(
+            customer.id(),
+            customer.name(),
+            customer.document(),
+            customer.address(),
+            customer.password(),
+            ClientTypeJpa.fromDomain(customer.type())
+        );
         clientRepository.save(entity);
     }
 }
