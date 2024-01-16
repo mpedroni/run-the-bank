@@ -20,26 +20,37 @@ public class CustomerE2ETest {
     ClientRepository clientRepository;
 
     @Test
-    void shouldCreateACustomerWithTheGivenData() throws Exception {
+    void createsACustomerWithTheGivenData() throws Exception {
+        // given
+        var aName = "John Doe";
+        var aDocument = "12365478902";
+        var anAddress = "Cidade de Pallet";
+        var aPassword = "Password@1234";
+
+        var content = """
+            {
+              "name": "%s",
+              "document": "%s",
+              "address": "%s",
+              "password": "%s"
+            }
+            """.formatted(aName, aDocument, anAddress, aPassword);
+
+        // when
         mvc.perform(post("/customers")
             .contentType("application/json")
-            .content("""
-                {
-                  "name": "John Doe",
-                  "document": 12365478902,
-                  "address": "Cidade de Pallet",
-                  "password": "Password@1234"
-                }
-                """))
+            .content(content))
             .andExpect(status().isCreated());
 
-        var customer = clientRepository.findAll().stream().findFirst().orElse(null);
+        // then
+        var customers = clientRepository.findAll();
+        assertThat(customers).hasSize(1);
 
-        assertThat(customer).isNotNull();
+        var customer = customers.getFirst();
         assertThat(customer.getId()).isNotNull();
-        assertThat(customer.getName()).isEqualTo("John Doe");
-        assertThat(customer.getDocument()).isEqualTo("12365478902");
-        assertThat(customer.getAddress()).isEqualTo("Cidade de Pallet");
+        assertThat(customer.getName()).isEqualTo(aName);
+        assertThat(customer.getDocument()).isEqualTo(aDocument);
+        assertThat(customer.getAddress()).isEqualTo(anAddress);
         assertThat(customer.getType()).isEqualTo(ClientTypeJpa.CUSTOMER);
     }
 }
