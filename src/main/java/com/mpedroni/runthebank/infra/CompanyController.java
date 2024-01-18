@@ -18,7 +18,7 @@ public class CompanyController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody CreateCustomerRequest request) {
+    public ResponseEntity<?> create(@RequestBody CreateClientRequest request) {
         var company = clientService.createCompany(
             request.name(),
             request.document(),

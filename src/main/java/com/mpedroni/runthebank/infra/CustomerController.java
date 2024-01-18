@@ -18,7 +18,7 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody CreateCustomerRequest request) {
+    public ResponseEntity<?> create(@RequestBody CreateClientRequest request) {
         var customer = clientService.createCustomer(
             request.name(),
             request.document(),
