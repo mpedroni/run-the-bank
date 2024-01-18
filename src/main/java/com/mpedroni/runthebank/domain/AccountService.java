@@ -13,11 +13,13 @@ public class AccountService {
     }
 
     public Account createAccountFor(UUID clientId, int agency) {
+        var lastAccountNumberInAgency = accountGateway.findLastAccountNumberFrom(agency);
+
         var account = new Account(
             UUID.randomUUID(),
             clientId,
             agency,
-            1,
+            lastAccountNumberInAgency + 1,
             BigDecimal.valueOf(0.0)
         );
 

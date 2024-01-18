@@ -14,8 +14,6 @@ public class AccountJpaEntity {
     private UUID id;
     private UUID clientId;
     private int agency;
-
-    @GeneratedValue(generator = "increment")
     private int number;
 
     public AccountJpaEntity() {
