@@ -21,7 +21,7 @@ public class ClientServiceUnitTests {
     public void createsACustomerWithTheGivenData() {
         var customer = sut.createCustomer("John Doe", "12345678900", "123 Main St", "password");
 
-        verify(clientGateway).createCustomer(customer);
+        verify(clientGateway).createClient(customer);
         assertThat(customer.name()).isEqualTo("John Doe");
         assertThat(customer.document()).isEqualTo("12345678900");
         assertThat(customer.address()).isEqualTo("123 Main St");
@@ -50,14 +50,25 @@ public class ClientServiceUnitTests {
     }
 
     @Test
-    public void throwsAnExceptionWhenDocumentIsInvalid() {
+    public void throwsAnExceptionWhenCustomerDocumentIsInvalid() {
         var anInvalidDocument = "1234567890";
 
         var thrown = catchThrowable(() -> sut.createCustomer(aName, anInvalidDocument, anAddress, aPassword));
 
         assertThat(thrown)
             .isInstanceOf(ValidationError.class)
-            .hasMessage("Document must have 11 digits");
+            .hasMessage("CPF must have 11 digits");
+    }
+
+    @Test
+    public void throwsAnExceptionWhenCompanyDocumentIsInvalid() {
+        var anInvalidDocument = "1234567890123";
+
+        var thrown = catchThrowable(() -> sut.createCompany(aName, anInvalidDocument, anAddress, aPassword));
+
+        assertThat(thrown)
+            .isInstanceOf(ValidationError.class)
+            .hasMessage("CNPJ must have 14 digits");
     }
 
     @Test

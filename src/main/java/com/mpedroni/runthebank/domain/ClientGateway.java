@@ -1,7 +1,6 @@
 package com.mpedroni.runthebank.domain;
 
 public interface ClientGateway {
-    void createCustomer(Client customer);
-    void createCompany(Client company);
+    void createClient(Client customer);
     Boolean exists(String aDocument);
 }

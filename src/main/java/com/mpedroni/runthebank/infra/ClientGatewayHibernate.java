@@ -14,29 +14,15 @@ public class ClientGatewayHibernate implements ClientGateway {
     }
 
     @Override
-    public void createCustomer(Client customer) {
+    public void createClient(Client client) {
         var entity = new ClientJpaEntity(
-            customer.id(),
-            customer.name(),
-            customer.document(),
-            customer.address(),
-            customer.password(),
-            ClientTypeJpa.fromDomain(customer.type())
+            client.id(),
+            client.name(),
+            client.document(),
+            client.address(),
+            client.password(),
+            ClientTypeJpa.fromDomain(client.type())
         );
-        clientRepository.save(entity);
-    }
-
-    @Override
-    public void createCompany(Client company) {
-        var entity = new ClientJpaEntity(
-            company.id(),
-            company.name(),
-            company.document(),
-            company.address(),
-            company.password(),
-            ClientTypeJpa.fromDomain(company.type())
-        );
-
         clientRepository.save(entity);
     }
 

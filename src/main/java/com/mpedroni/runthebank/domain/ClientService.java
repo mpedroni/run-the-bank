@@ -13,11 +13,24 @@ public class ClientService {
     }
 
     public Client createCustomer(String name, String document, String address, String password) {
+        if (document == null || document.length() != 11) {
+            throw new ValidationError("CPF must have 11 digits");
+        }
+
+        return createClient(name, document, address, password, ClientType.CUSTOMER);
+    }
+
+    public Client createCompany(String name, String document, String address, String password) {
+        if (document == null || document.length() != 14) {
+            throw new ValidationError("CNPJ must have 14 digits");
+        }
+
+        return createClient(name, document, address, password, ClientType.COMPANY);
+    }
+
+    private Client createClient(String name, String document, String address, String password, ClientType type) {
         if (name == null || name.isBlank()) {
             throw new ValidationError("Name must not be empty");
-        }
-        if (document == null || document.length() != 11) {
-            throw new ValidationError("Document must have 11 digits");
         }
         if (address == null || address.isBlank()) {
             throw new ValidationError("Address must not be empty");
@@ -27,22 +40,16 @@ public class ClientService {
         }
 
         if (clientGateway.exists(document)) {
-            throw new ApplicationException("A customer with the given document already exists");
+            throw new ApplicationException(
+                String.format("A %s with the given document already exists", type.name().toLowerCase())
+            );
         }
 
-        var customer = new Client(UUID.randomUUID(), name, document, address, password,
-            ClientType.CUSTOMER);
-        clientGateway.createCustomer(customer);
+        var client = new Client(UUID.randomUUID(), name, document, address, password,
+            type);
 
-        return customer;
-    }
+        clientGateway.createClient(client);
 
-    public Client createCompany(String name, String document, String address, String password) {
-        var company = new Client(UUID.randomUUID(), name, document, address, password,
-            ClientType.COMPANY);
-
-        clientGateway.createCompany(company);
-
-        return company;
+        return client;
     }
 }
