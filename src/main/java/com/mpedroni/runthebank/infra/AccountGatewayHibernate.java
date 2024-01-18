@@ -26,6 +26,6 @@ public class AccountGatewayHibernate implements AccountGateway {
 
     @Override
     public int findLastAccountNumberFrom(int agency) {
-        return 0;
+        return accountRepository.findLastAccountNumberFrom(agency);
     }
 }
