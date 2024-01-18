@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.domain;
+package com.mpedroni.runthebank.domain.account;
 
 public interface AccountGateway {
     void create(Account account);

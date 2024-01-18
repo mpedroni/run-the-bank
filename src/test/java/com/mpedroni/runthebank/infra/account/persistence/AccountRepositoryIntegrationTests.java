@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.infra;
+package com.mpedroni.runthebank.infra.account.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

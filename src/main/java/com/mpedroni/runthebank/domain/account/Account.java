@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.domain;
+package com.mpedroni.runthebank.domain.account;
 
 import java.math.BigDecimal;
 import java.util.UUID;

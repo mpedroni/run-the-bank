@@ -1,7 +1,7 @@
-package com.mpedroni.runthebank.infra;
+package com.mpedroni.runthebank.infra.account.persistence;
 
-import com.mpedroni.runthebank.domain.Account;
-import com.mpedroni.runthebank.domain.AccountGateway;
+import com.mpedroni.runthebank.domain.account.Account;
+import com.mpedroni.runthebank.domain.account.AccountGateway;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.infra;
+package com.mpedroni.runthebank.infra.account.api;
 
 import java.util.UUID;
 

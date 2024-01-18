@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.infra;
+package com.mpedroni.runthebank.infra.account.persistence;
 
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
