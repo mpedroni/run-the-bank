@@ -27,6 +27,20 @@ public class ClientGatewayHibernate implements ClientGateway {
     }
 
     @Override
+    public void createCompany(Client company) {
+        var entity = new ClientJpaEntity(
+            company.id(),
+            company.name(),
+            company.document(),
+            company.address(),
+            company.password(),
+            ClientTypeJpa.fromDomain(company.type())
+        );
+
+        clientRepository.save(entity);
+    }
+
+    @Override
     public Boolean exists(String aDocument) {
         return clientRepository.findByDocument(aDocument).isPresent();
     }

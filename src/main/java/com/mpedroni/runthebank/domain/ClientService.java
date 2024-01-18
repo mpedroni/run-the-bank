@@ -36,4 +36,13 @@ public class ClientService {
 
         return customer;
     }
+
+    public Client createCompany(String name, String document, String address, String password) {
+        var company = new Client(UUID.randomUUID(), name, document, address, password,
+            ClientType.COMPANY);
+
+        clientGateway.createCompany(company);
+
+        return company;
+    }
 }
