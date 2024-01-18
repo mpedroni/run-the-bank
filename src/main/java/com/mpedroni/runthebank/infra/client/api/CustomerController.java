@@ -1,6 +1,6 @@
-package com.mpedroni.runthebank.infra;
+package com.mpedroni.runthebank.infra.client.api;
 
-import com.mpedroni.runthebank.domain.ClientService;
+import com.mpedroni.runthebank.domain.client.ClientService;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

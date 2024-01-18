@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.infra;
+package com.mpedroni.runthebank.infra.client.persistence;
 
 import java.util.Optional;
 import java.util.UUID;

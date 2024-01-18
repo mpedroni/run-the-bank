@@ -1,9 +1,11 @@
-package com.mpedroni.runthebank.infra;
+package com.mpedroni.runthebank.infra.client.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.mpedroni.runthebank.infra.client.persistence.ClientRepository;
+import com.mpedroni.runthebank.infra.client.persistence.ClientTypeJpa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class CustomerE2ETest {
+public class CompanyE2ETest {
     @Autowired
     MockMvc mvc;
 
@@ -26,10 +28,10 @@ public class CustomerE2ETest {
     }
 
     @Test
-    void createsACustomerWithTheGivenData() throws Exception {
+    void createsACompanyWithTheGivenData() throws Exception {
         // given
-        var aName = "John Doe";
-        var aDocument = "12365478902";
+        var aName = "John Doe Inc.";
+        var aDocument = "12345678901234";
         var anAddress = "Cidade de Pallet";
         var aPassword = "Password@1234";
 
@@ -43,20 +45,20 @@ public class CustomerE2ETest {
             """.formatted(aName, aDocument, anAddress, aPassword);
 
         // when
-        mvc.perform(post("/customers")
-            .contentType("application/json")
-            .content(content))
+        mvc.perform(post("/companies")
+                .contentType("application/json")
+                .content(content))
             .andExpect(status().isCreated());
 
         // then
-        var customers = clientRepository.findAll();
-        assertThat(customers).hasSize(1);
+        var companies = clientRepository.findAll();
+        assertThat(companies).hasSize(1);
 
-        var customer = customers.getFirst();
-        assertThat(customer.getId()).isNotNull();
-        assertThat(customer.getName()).isEqualTo(aName);
-        assertThat(customer.getDocument()).isEqualTo(aDocument);
-        assertThat(customer.getAddress()).isEqualTo(anAddress);
-        assertThat(customer.getType()).isEqualTo(ClientTypeJpa.CUSTOMER);
+        var company = companies.getFirst();
+        assertThat(company.getId()).isNotNull();
+        assertThat(company.getName()).isEqualTo(aName);
+        assertThat(company.getDocument()).isEqualTo(aDocument);
+        assertThat(company.getAddress()).isEqualTo(anAddress);
+        assertThat(company.getType()).isEqualTo(ClientTypeJpa.COMPANY);
     }
 }

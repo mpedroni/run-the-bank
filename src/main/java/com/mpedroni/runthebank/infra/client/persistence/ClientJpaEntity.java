@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.infra;
+package com.mpedroni.runthebank.infra.client.persistence;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

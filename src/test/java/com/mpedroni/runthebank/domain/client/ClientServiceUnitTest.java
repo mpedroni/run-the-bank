@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.domain;
+package com.mpedroni.runthebank.domain.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -6,9 +6,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.mpedroni.runthebank.domain.ApplicationException;
+import com.mpedroni.runthebank.domain.ValidationError;
 import org.junit.jupiter.api.Test;
 
-public class ClientServiceUnitTests {
+public class ClientServiceUnitTest {
     private final ClientGateway clientGateway = mock(ClientGateway.class);
     private final ClientService sut = new ClientService(clientGateway);
 

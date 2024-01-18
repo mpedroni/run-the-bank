@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.domain;
+package com.mpedroni.runthebank.domain.client;
 
 import java.util.UUID;
 

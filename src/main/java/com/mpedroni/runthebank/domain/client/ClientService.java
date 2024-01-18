@@ -1,5 +1,7 @@
-package com.mpedroni.runthebank.domain;
+package com.mpedroni.runthebank.domain.client;
 
+import com.mpedroni.runthebank.domain.ApplicationException;
+import com.mpedroni.runthebank.domain.ValidationError;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
