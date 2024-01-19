@@ -15,6 +15,14 @@ public class TransactionService {
             throw new ApplicationException("Payer and payee cannot be the same.");
         }
 
+        if(!payer.isActive()) {
+            throw new ApplicationException("Payer account is not active.");
+        }
+
+        if(!payee.isActive()) {
+            throw new ApplicationException("Payee account is not active.");
+        }
+
         var transaction = new Transaction(UUID.randomUUID(), payer.id(), payee.id(), amount);
 
         return transaction;
