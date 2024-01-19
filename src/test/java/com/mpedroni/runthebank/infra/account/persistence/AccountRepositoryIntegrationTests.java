@@ -33,6 +33,22 @@ class AccountRepositoryIntegrationTests {
     }
 
     @Test
+    void considersOnlyAccountsFromTheGivenAgencyWhenFindingTheLastAccountNumber() {
+        var agencyWithAccounts = 1111;
+        var anAccountNumber = 1;
+        var agencyWithoutAccounts = 2222;
+
+        em.persist(new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), agencyWithAccounts, anAccountNumber));
+
+        var lastAccountNumberAgencyWithAccounts = accountRepository.findLastAccountNumberFrom(agencyWithAccounts);
+        var lastAccountNumberForAgencyWithoutAccounts = accountRepository.findLastAccountNumberFrom(agencyWithoutAccounts);
+
+        assertThat(lastAccountNumberAgencyWithAccounts).isEqualTo(anAccountNumber);
+        assertThat(lastAccountNumberForAgencyWithoutAccounts).isEqualTo(0);
+    }
+
+
+    @Test
     void returnsZeroAsLastAccountNumberWhenThereAreNoAccountsFromAnAgency() {
         var anAgency = 1234;
 
