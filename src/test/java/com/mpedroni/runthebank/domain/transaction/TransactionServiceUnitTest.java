@@ -63,4 +63,14 @@ public class TransactionServiceUnitTest {
             .isInstanceOf(ApplicationException.class)
             .hasMessage("Payee account is not active.");
     }
+
+    @Test
+    void throwsIfAmountIsZeroOrLess() {
+        var payer = anActiveAccount(1);
+        var payee = anActiveAccount(2);
+
+        assertThatThrownBy(() -> sut.createTransaction(payer, payee, BigDecimal.ZERO))
+            .isInstanceOf(ApplicationException.class)
+            .hasMessage("Amount must be greater than zero.");
+    }
 }
