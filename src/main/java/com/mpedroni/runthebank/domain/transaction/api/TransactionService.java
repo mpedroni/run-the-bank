@@ -27,6 +27,10 @@ public class TransactionService {
             throw new ApplicationException("Amount must be greater than zero.");
         }
 
+        if (payer.balance().compareTo(amount) < 0) {
+            throw new ApplicationException("Payer account does not have enough balance.");
+        }
+
         var transaction = new Transaction(UUID.randomUUID(), payer.id(), payee.id(), amount);
 
         return transaction;

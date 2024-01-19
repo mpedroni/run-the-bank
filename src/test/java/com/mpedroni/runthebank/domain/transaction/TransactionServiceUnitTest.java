@@ -1,7 +1,6 @@
 package com.mpedroni.runthebank.domain.transaction;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.mpedroni.runthebank.domain.ApplicationException;
 import com.mpedroni.runthebank.domain.account.Account;
@@ -72,5 +71,15 @@ public class TransactionServiceUnitTest {
         assertThatThrownBy(() -> sut.createTransaction(payer, payee, BigDecimal.ZERO))
             .isInstanceOf(ApplicationException.class)
             .hasMessage("Amount must be greater than zero.");
+    }
+
+    @Test
+    void throwsIfPayerDoesNotHaveEnoughBalance() {
+        var payer = anActiveAccount(1);
+        var payee = anActiveAccount(2);
+
+        assertThatThrownBy(() -> sut.createTransaction(payer, payee, BigDecimal.valueOf(1)))
+            .isInstanceOf(ApplicationException.class)
+            .hasMessage("Payer account does not have enough balance.");
     }
 }
