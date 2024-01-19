@@ -1,10 +1,12 @@
 package com.mpedroni.runthebank.domain.account;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.mpedroni.runthebank.domain.ValidationError;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -35,5 +37,14 @@ public class AccountServiceUnitTest {
         var account = sut.createAccountFor(UUID.randomUUID(), anAgency);
 
         assertThat(account.number()).isEqualTo(2);
+    }
+
+    @Test
+    void throwsWhenTheGivenAgencyDoesNotExist() {
+        var anInvalidAgency = 0;
+
+        assertThatThrownBy(() -> sut.createAccountFor(UUID.randomUUID(), anInvalidAgency))
+            .isInstanceOf(ValidationError.class)
+            .hasMessage("The agency does not exists.");
     }
 }

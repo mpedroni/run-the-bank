@@ -1,5 +1,6 @@
 package com.mpedroni.runthebank.domain.account;
 
+import com.mpedroni.runthebank.domain.ValidationError;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ public class AccountService {
 
     public Account createAccountFor(UUID clientId, int agency) {
         if(agency == 0) {
-            throw new IllegalArgumentException("The agency does not exists.");
+            throw new ValidationError("The agency does not exists.");
         }
 
         var lastAccountNumberInAgency = accountGateway.findLastAccountNumberFrom(agency);
