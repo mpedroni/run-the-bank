@@ -8,7 +8,28 @@ public record Account(
     UUID clientId,
     int agency,
     int number,
-    BigDecimal balance
+    BigDecimal balance,
+    AccountStatus status
 ) {
+    public Account(
+        UUID id,
+        UUID clientId,
+        int agency,
+        int number,
+        BigDecimal balance
+    ) {
+        this(id, clientId, agency, number, balance, AccountStatus.ACTIVE);
+    }
 
+    public static Account create(
+        UUID clientId,
+        int agency,
+        int number
+    ) {
+        return new Account(UUID.randomUUID(), clientId, agency, number, BigDecimal.ZERO, AccountStatus.ACTIVE);
+    }
+
+    public boolean isActive() {
+        return status == AccountStatus.ACTIVE;
+    }
 }
