@@ -40,7 +40,7 @@ public class AccountGatewayHibernate implements AccountGateway {
                 accountJpaEntity.getClientId(),
                 accountJpaEntity.getAgency(),
                 accountJpaEntity.getNumber(),
-                BigDecimal.valueOf(0.0)
+                accountRepository.getBalanceOf(id)
             ));
     }
 }

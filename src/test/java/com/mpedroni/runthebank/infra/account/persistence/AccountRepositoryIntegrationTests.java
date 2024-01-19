@@ -3,6 +3,7 @@ package com.mpedroni.runthebank.infra.account.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,4 +73,14 @@ class AccountRepositoryIntegrationTests {
             .hasMessageContaining("ACCOUNTS_AGENCY_NUMBER_UNIQUE");
     }
 
+    @Test
+    void returnsZeroAsBalanceWhenAccountHasNoAssociatedTransactions() {
+        var anAccount = new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), 1234, 1);
+
+        em.persist(anAccount);
+
+        var balance = accountRepository.getBalanceOf(anAccount.getId());
+
+        assertThat(balance).isEqualTo(BigDecimal.ZERO);
+    }
 }
