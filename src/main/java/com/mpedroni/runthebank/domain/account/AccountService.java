@@ -2,6 +2,7 @@ package com.mpedroni.runthebank.domain.account;
 
 import com.mpedroni.runthebank.domain.ValidationError;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +32,9 @@ public class AccountService {
         accountGateway.create(account);
 
         return account;
+    }
+
+    public Optional<Account> findById(UUID id) {
+        return accountGateway.findById(id);
     }
 }
