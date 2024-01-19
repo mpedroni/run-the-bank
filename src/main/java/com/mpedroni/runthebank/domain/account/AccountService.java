@@ -13,6 +13,10 @@ public class AccountService {
     }
 
     public Account createAccountFor(UUID clientId, int agency) {
+        if(agency == 0) {
+            throw new IllegalArgumentException("The agency does not exists.");
+        }
+
         var lastAccountNumberInAgency = accountGateway.findLastAccountNumberFrom(agency);
 
         var account = new Account(
