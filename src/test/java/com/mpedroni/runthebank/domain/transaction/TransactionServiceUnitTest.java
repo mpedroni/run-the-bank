@@ -14,61 +14,53 @@ import org.junit.jupiter.api.Test;
 public class TransactionServiceUnitTest {
     TransactionService sut = new TransactionService();
 
-    @Test
-    void throwsIfPayerAndPayeeAreTheSame() {
-        var payer = Account.create(
+    BigDecimal anAmount = BigDecimal.valueOf(100);
+
+    static Account anActiveAccount(int number) {
+        return Account.create(
             UUID.randomUUID(),
             1234,
-            1
+            number
         );
+    }
 
-        assertThatThrownBy(() -> sut.createTransaction(payer, payer, BigDecimal.valueOf(100)))
+    static Account anInactiveAccount(int number) {
+        return new Account(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            1234,
+            number,
+            BigDecimal.ZERO,
+            AccountStatus.INACTIVE
+        );
+    }
+
+    @Test
+    void throwsIfPayerAndPayeeAreTheSame() {
+        var payer = anActiveAccount(1);
+
+        assertThatThrownBy(() -> sut.createTransaction(payer, payer, anAmount))
             .isInstanceOf(ApplicationException.class)
             .hasMessage("Payer and payee cannot be the same.");
     }
 
     @Test
     void throwsIfPayerIsNotActive() {
-        var payer = new Account(
-            UUID.randomUUID(),
-            UUID.randomUUID(),
-            1234,
-            1,
-            BigDecimal.valueOf(100),
-            AccountStatus.INACTIVE
-        );
+        var payer = anInactiveAccount(1);
+        var payee = anActiveAccount(2);
 
-        var payee = Account.create(
-            UUID.randomUUID(),
-            1234,
-            2
-        );
-
-        assertThatThrownBy(() -> sut.createTransaction(payer, payee, BigDecimal.valueOf(100)))
+        assertThatThrownBy(() -> sut.createTransaction(payer, payee, anAmount))
             .isInstanceOf(ApplicationException.class)
             .hasMessage("Payer account is not active.");
     }
 
     @Test
     void throwsIfPayeeIsNotActive() {
-        var payer = Account.create(
-            UUID.randomUUID(),
-            1234,
-            1
-        );
+        var payer = anActiveAccount(1);
+        var payee = anInactiveAccount(2);
 
-        var payee = new Account(
-            UUID.randomUUID(),
-            UUID.randomUUID(),
-            1234,
-            2,
-            BigDecimal.valueOf(100),
-            AccountStatus.INACTIVE
-        );
-
-        assertThatThrownBy(() -> sut.createTransaction(payer, payee, BigDecimal.valueOf(100)))
+        assertThatThrownBy(() -> sut.createTransaction(payer, payee, anAmount))
             .isInstanceOf(ApplicationException.class)
             .hasMessage("Payee account is not active.");
     }
-
 }
