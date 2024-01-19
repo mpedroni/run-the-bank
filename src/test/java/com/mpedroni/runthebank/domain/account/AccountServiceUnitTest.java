@@ -2,6 +2,7 @@ package com.mpedroni.runthebank.domain.account;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
@@ -11,6 +12,20 @@ public class AccountServiceUnitTest {
     AccountGateway accountGateway = mock(AccountGateway.class);
 
     AccountService sut = new AccountService(accountGateway);
+
+    @Test
+    void createsAnAccountForTheGivenClient() {
+        var anAgency = 1234;
+        var aClientId = UUID.randomUUID();
+
+        var account = sut.createAccountFor(aClientId, anAgency);
+
+        verify(accountGateway).create(account);
+
+        assertThat(account.clientId()).isEqualTo(aClientId);
+        assertThat(account.agency()).isEqualTo(anAgency);
+        assertThat(account.number()).isEqualTo(1);
+    }
 
     @Test
     void assignsAccountNumbersSequentially() {
