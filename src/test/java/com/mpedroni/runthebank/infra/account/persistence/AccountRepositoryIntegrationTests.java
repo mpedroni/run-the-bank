@@ -3,8 +3,6 @@ package com.mpedroni.runthebank.infra.account.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.mpedroni.runthebank.infra.transaction.persistence.TransactionJpaEntity;
-import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +18,22 @@ class AccountRepositoryIntegrationTests {
     @Autowired
     TestEntityManager em;
 
+    static AccountJpaEntity anAccount(int number) {
+        return new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), 1234, number);
+    }
+
+    static AccountJpaEntity anAccount(int number, int agency) {
+        return new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), agency, number);
+    }
+
     @Test
     void findsTheLastAccountNumberFromAnAgency() {
         var anAgency = 1234;
         var anAccountNumber = 1;
         var lastAccountNumber = 2;
 
-        em.persist(new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), anAgency, anAccountNumber));
-        em.persist(new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), anAgency, lastAccountNumber));
+        em.persist(anAccount(anAccountNumber, anAgency));
+        em.persist(anAccount(lastAccountNumber, anAgency));
 
         var foundLastAccountNumber = accountRepository.findLastAccountNumberFrom(anAgency);
 
@@ -40,7 +46,7 @@ class AccountRepositoryIntegrationTests {
         var anAccountNumber = 1;
         var agencyWithoutAccounts = 2222;
 
-        em.persist(new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), agencyWithAccounts, anAccountNumber));
+        em.persist(anAccount(anAccountNumber, agencyWithAccounts));
 
         var lastAccountNumberAgencyWithAccounts = accountRepository.findLastAccountNumberFrom(agencyWithAccounts);
         var lastAccountNumberForAgencyWithoutAccounts = accountRepository.findLastAccountNumberFrom(agencyWithoutAccounts);
@@ -61,42 +67,15 @@ class AccountRepositoryIntegrationTests {
 
     @Test
     void throwsWhenCreatingAnAccountWithDuplicatedNumberAndAgency() {
-        var anAgency = 1234;
         var anAccountNumber = 1;
 
-        var anAccount = new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), anAgency, anAccountNumber);
-        var anotherAccount = new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), anAgency, anAccountNumber);
+        var anAccount = anAccount(anAccountNumber);
+        var duplicatedAccount = anAccount(anAccountNumber);
 
         accountRepository.saveAndFlush(anAccount);
 
-        assertThatThrownBy(() -> accountRepository.saveAndFlush(anotherAccount))
+        assertThatThrownBy(() -> accountRepository.saveAndFlush(duplicatedAccount))
             .isInstanceOf(DataIntegrityViolationException.class)
             .hasMessageContaining("ACCOUNTS_AGENCY_NUMBER_UNIQUE");
-    }
-
-    @Test
-    void hasZeroAsBalanceWhenHasNoAssociatedTransactions() {
-        var anAccount = new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), 1234, 1);
-
-        em.persist(anAccount);
-
-        var balance = accountRepository.getBalanceOf(anAccount.getId());
-
-        assertThat(balance).isEqualTo(BigDecimal.ZERO);
-    }
-
-    @Test
-    void hasItsBalanceAsTheSumOfAllItsAssociatedTransactions() {
-        var anAccount = new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), 1234, 1);
-
-        em.persist(anAccount);
-
-        em.persist(new TransactionJpaEntity(UUID.randomUUID(), anAccount.getId(), UUID.randomUUID(), BigDecimal.valueOf(100)));
-        em.persist(new TransactionJpaEntity(UUID.randomUUID(), anAccount.getId(), UUID.randomUUID(), BigDecimal.valueOf(-50)));
-        em.persist(new TransactionJpaEntity(UUID.randomUUID(), UUID.randomUUID(), anAccount.getId(), BigDecimal.valueOf(100)));
-
-        var balance = accountRepository.getBalanceOf(anAccount.getId());
-
-        assertThat(balance.compareTo(BigDecimal.valueOf(150)) == 0).isTrue();
     }
 }

@@ -34,13 +34,26 @@ public class AccountGatewayHibernate implements AccountGateway {
 
     @Override
     public Optional<Account> findById(UUID id) {
-        return accountRepository.findById(id)
-            .map(accountJpaEntity -> new Account(
-                accountJpaEntity.getId(),
-                accountJpaEntity.getClientId(),
-                accountJpaEntity.getAgency(),
-                accountJpaEntity.getNumber(),
-                accountRepository.getBalanceOf(id)
-            ));
+        var account = accountRepository.findById(id);
+
+        if(account.isEmpty()) return Optional.empty();
+
+        var balance = accountRepository.findTransactionsOf(id)
+            .stream()
+            .map(transaction -> {
+                var isDebit = transaction.getPayerId().equals(id);
+                var amount = transaction.getAmount();
+
+                return isDebit ? amount.negate() : amount;
+            })
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return account.map(accountJpaEntity -> new Account(
+            accountJpaEntity.getId(),
+            accountJpaEntity.getClientId(),
+            accountJpaEntity.getAgency(),
+            accountJpaEntity.getNumber(),
+            balance
+        ));
     }
 }
