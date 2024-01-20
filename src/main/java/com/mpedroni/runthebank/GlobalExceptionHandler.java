@@ -1,6 +1,7 @@
 package com.mpedroni.runthebank;
 
 import com.mpedroni.runthebank.domain.ApplicationException;
+import com.mpedroni.runthebank.domain.ValidationError;
 import com.mpedroni.runthebank.domain.transaction.exceptions.NotEnoughBalanceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         if (ex instanceof NotEnoughBalanceException) {
             status = HttpStatus.CONFLICT;
+        }
+
+        if (ex instanceof ValidationError) {
+            status = HttpStatus.BAD_REQUEST;
         }
 
         return this.handleExceptionInternal(ex, message, new HttpHeaders(), status, request);

@@ -3,9 +3,10 @@ package com.mpedroni.runthebank.domain.transaction;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
-import com.mpedroni.runthebank.domain.ApplicationException;
+import com.mpedroni.runthebank.domain.ValidationError;
 import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.account.AccountStatus;
+import com.mpedroni.runthebank.domain.transaction.exceptions.NotEnoughBalanceException;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ public class TransactionServiceUnitTest {
         var payer = anActiveAccount(1);
 
         assertThatThrownBy(() -> sut.createTransaction(payer, payer, anAmount))
-            .isInstanceOf(ApplicationException.class)
+            .isInstanceOf(ValidationError.class)
             .hasMessage("Payer and payee cannot be the same.");
     }
 
@@ -51,7 +52,7 @@ public class TransactionServiceUnitTest {
         var payee = anActiveAccount(2);
 
         assertThatThrownBy(() -> sut.createTransaction(payer, payee, anAmount))
-            .isInstanceOf(ApplicationException.class)
+            .isInstanceOf(ValidationError.class)
             .hasMessage("Payer account is not active.");
     }
 
@@ -61,7 +62,7 @@ public class TransactionServiceUnitTest {
         var payee = anInactiveAccount(2);
 
         assertThatThrownBy(() -> sut.createTransaction(payer, payee, anAmount))
-            .isInstanceOf(ApplicationException.class)
+            .isInstanceOf(ValidationError.class)
             .hasMessage("Payee account is not active.");
     }
 
@@ -71,7 +72,7 @@ public class TransactionServiceUnitTest {
         var payee = anActiveAccount(2);
 
         assertThatThrownBy(() -> sut.createTransaction(payer, payee, BigDecimal.ZERO))
-            .isInstanceOf(ApplicationException.class)
+            .isInstanceOf(ValidationError.class)
             .hasMessage("Amount must be greater than zero.");
     }
 
@@ -81,7 +82,7 @@ public class TransactionServiceUnitTest {
         var payee = anActiveAccount(2);
 
         assertThatThrownBy(() -> sut.createTransaction(payer, payee, BigDecimal.valueOf(1)))
-            .isInstanceOf(ApplicationException.class)
+            .isInstanceOf(NotEnoughBalanceException.class)
             .hasMessage("Payer account does not have enough balance.");
     }
 }

@@ -6,7 +6,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.account.AccountGateway;
+import com.mpedroni.runthebank.infra.account.persistence.AccountRepository;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,7 +23,15 @@ public class TransactionE2ETest {
     MockMvc mvc;
 
     @Autowired
+    AccountRepository accountRepository;
+
+    @Autowired
     AccountGateway accountGateway;
+
+    @BeforeEach
+    void cleanDatabase () {
+        accountRepository.deleteAll();
+    }
 
     Account anAccount(int number) {
         var clientId = UUID.randomUUID();
