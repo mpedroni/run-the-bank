@@ -1,7 +1,7 @@
 package com.mpedroni.runthebank.infra.transaction.persistence;
 
 import com.mpedroni.runthebank.domain.transaction.Transaction;
-import com.mpedroni.runthebank.domain.transaction.api.TransactionGateway;
+import com.mpedroni.runthebank.domain.transaction.TransactionGateway;
 import org.springframework.stereotype.Service;
 
 @Service

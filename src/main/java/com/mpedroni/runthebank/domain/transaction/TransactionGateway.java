@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.domain.transaction.api;
+package com.mpedroni.runthebank.domain.transaction;
 
 import com.mpedroni.runthebank.domain.transaction.Transaction;
 

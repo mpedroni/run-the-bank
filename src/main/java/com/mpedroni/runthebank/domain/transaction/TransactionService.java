@@ -1,8 +1,7 @@
-package com.mpedroni.runthebank.domain.transaction.api;
+package com.mpedroni.runthebank.domain.transaction;
 
 import com.mpedroni.runthebank.domain.ApplicationException;
 import com.mpedroni.runthebank.domain.account.Account;
-import com.mpedroni.runthebank.domain.transaction.Transaction;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.springframework.stereotype.Service;

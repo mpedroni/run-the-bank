@@ -1,7 +1,7 @@
 package com.mpedroni.runthebank.infra.transaction.api;
 
 import com.mpedroni.runthebank.domain.account.AccountService;
-import com.mpedroni.runthebank.domain.transaction.api.TransactionService;
+import com.mpedroni.runthebank.domain.transaction.TransactionService;
 import java.math.BigDecimal;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
