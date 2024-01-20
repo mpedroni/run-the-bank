@@ -2,6 +2,7 @@ package com.mpedroni.runthebank.domain.transaction;
 
 import com.mpedroni.runthebank.domain.ApplicationException;
 import com.mpedroni.runthebank.domain.account.Account;
+import com.mpedroni.runthebank.domain.transaction.exceptions.NotEnoughBalanceException;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class TransactionService {
         }
 
         if (payer.balance().compareTo(amount) < 0) {
-            throw new ApplicationException("Payer account does not have enough balance.");
+            throw new NotEnoughBalanceException("Payer account does not have enough balance.");
         }
 
         var transaction = new Transaction(UUID.randomUUID(), payer, payee, amount);
