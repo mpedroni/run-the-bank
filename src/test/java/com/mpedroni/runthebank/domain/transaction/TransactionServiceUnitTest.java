@@ -1,17 +1,21 @@
 package com.mpedroni.runthebank.domain.transaction;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 import com.mpedroni.runthebank.domain.ApplicationException;
 import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.account.AccountStatus;
+import com.mpedroni.runthebank.domain.transaction.api.TransactionGateway;
 import com.mpedroni.runthebank.domain.transaction.api.TransactionService;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 public class TransactionServiceUnitTest {
-    TransactionService sut = new TransactionService();
+    TransactionGateway transactionGateway = mock(TransactionGateway.class);
+
+    TransactionService sut = new TransactionService(transactionGateway);
 
     BigDecimal anAmount = BigDecimal.valueOf(100);
 
