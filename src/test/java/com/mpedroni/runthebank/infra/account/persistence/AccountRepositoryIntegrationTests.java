@@ -3,6 +3,7 @@ package com.mpedroni.runthebank.infra.account.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.mpedroni.runthebank.infra.transaction.persistence.TransactionJpaEntity;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -74,7 +75,7 @@ class AccountRepositoryIntegrationTests {
     }
 
     @Test
-    void returnsZeroAsBalanceWhenAccountHasNoAssociatedTransactions() {
+    void hasZeroAsBalanceWhenHasNoAssociatedTransactions() {
         var anAccount = new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), 1234, 1);
 
         em.persist(anAccount);
@@ -82,5 +83,20 @@ class AccountRepositoryIntegrationTests {
         var balance = accountRepository.getBalanceOf(anAccount.getId());
 
         assertThat(balance).isEqualTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    void hasItsBalanceAsTheSumOfAllItsAssociatedTransactions() {
+        var anAccount = new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), 1234, 1);
+
+        em.persist(anAccount);
+
+        em.persist(new TransactionJpaEntity(UUID.randomUUID(), anAccount.getId(), UUID.randomUUID(), BigDecimal.valueOf(100)));
+        em.persist(new TransactionJpaEntity(UUID.randomUUID(), anAccount.getId(), UUID.randomUUID(), BigDecimal.valueOf(-50)));
+        em.persist(new TransactionJpaEntity(UUID.randomUUID(), UUID.randomUUID(), anAccount.getId(), BigDecimal.valueOf(100)));
+
+        var balance = accountRepository.getBalanceOf(anAccount.getId());
+
+        assertThat(balance.compareTo(BigDecimal.valueOf(150)) == 0).isTrue();
     }
 }

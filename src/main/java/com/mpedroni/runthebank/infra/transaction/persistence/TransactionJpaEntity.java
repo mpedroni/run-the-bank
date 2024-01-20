@@ -18,6 +18,13 @@ public class TransactionJpaEntity {
     public TransactionJpaEntity() {
     }
 
+    public TransactionJpaEntity(UUID id, UUID payerId, UUID payeeId, BigDecimal amount) {
+        this.id = id;
+        this.payerId = payerId;
+        this.payeeId = payeeId;
+        this.amount = amount;
+    }
+
     public UUID getId() {
         return id;
     }
