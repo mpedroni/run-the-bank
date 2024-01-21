@@ -4,7 +4,6 @@ import com.mpedroni.runthebank.domain.ValidationError;
 import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.transaction.exceptions.NotEnoughBalanceException;
 import java.math.BigDecimal;
-import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,7 +35,7 @@ public class TransactionService {
             throw new NotEnoughBalanceException("Payer account does not have enough balance.");
         }
 
-        var transaction = new Transaction(UUID.randomUUID(), payer, payee, amount);
+        var transaction = Transaction.transferOf(payer, payee, amount);
         transactionGateway.create(transaction);
 
         return transaction;

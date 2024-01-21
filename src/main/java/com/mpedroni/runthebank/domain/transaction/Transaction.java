@@ -8,7 +8,17 @@ public record Transaction(
     UUID id,
     Account payer,
     Account payee,
-    BigDecimal amount
+    BigDecimal amount,
+    TransactionType type
 ) {
 
+    public static Transaction transferOf(Account payer, Account payee, BigDecimal amount) {
+        return new Transaction(
+            UUID.randomUUID(),
+            payer,
+            payee,
+            amount,
+            TransactionType.TRANSFER
+        );
+    }
 }
