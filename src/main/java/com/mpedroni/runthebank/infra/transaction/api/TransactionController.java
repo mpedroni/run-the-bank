@@ -36,7 +36,7 @@ public class TransactionController {
         }
 
         var transaction = transactionService.createTransaction(payer.get(), payee.get(),
-            BigDecimal.valueOf(request.amount()));
+            BigDecimal.valueOf(request.amount()), request.type());
 
         return ResponseEntity.created(URI.create("/transactions/" + transaction.id())).build();
     }

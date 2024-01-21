@@ -41,7 +41,7 @@ public class TransactionServiceUnitTest {
     void throwsIfPayerAndPayeeAreTheSame() {
         var payer = anActiveAccount(1);
 
-        assertThatThrownBy(() -> sut.createTransaction(payer, payer, anAmount))
+        assertThatThrownBy(() -> sut.transferOf(payer, payer, anAmount))
             .isInstanceOf(ValidationError.class)
             .hasMessage("Payer and payee cannot be the same.");
     }
@@ -51,7 +51,7 @@ public class TransactionServiceUnitTest {
         var payer = anInactiveAccount(1);
         var payee = anActiveAccount(2);
 
-        assertThatThrownBy(() -> sut.createTransaction(payer, payee, anAmount))
+        assertThatThrownBy(() -> sut.transferOf(payer, payee, anAmount))
             .isInstanceOf(ValidationError.class)
             .hasMessage("Payer account is not active.");
     }
@@ -61,7 +61,7 @@ public class TransactionServiceUnitTest {
         var payer = anActiveAccount(1);
         var payee = anInactiveAccount(2);
 
-        assertThatThrownBy(() -> sut.createTransaction(payer, payee, anAmount))
+        assertThatThrownBy(() -> sut.transferOf(payer, payee, anAmount))
             .isInstanceOf(ValidationError.class)
             .hasMessage("Payee account is not active.");
     }
@@ -71,7 +71,7 @@ public class TransactionServiceUnitTest {
         var payer = anActiveAccount(1);
         var payee = anActiveAccount(2);
 
-        assertThatThrownBy(() -> sut.createTransaction(payer, payee, BigDecimal.ZERO))
+        assertThatThrownBy(() -> sut.transferOf(payer, payee, BigDecimal.ZERO))
             .isInstanceOf(ValidationError.class)
             .hasMessage("Amount must be greater than zero.");
     }
@@ -81,7 +81,7 @@ public class TransactionServiceUnitTest {
         var payer = anActiveAccount(1);
         var payee = anActiveAccount(2);
 
-        assertThatThrownBy(() -> sut.createTransaction(payer, payee, BigDecimal.valueOf(1)))
+        assertThatThrownBy(() -> sut.transferOf(payer, payee, BigDecimal.valueOf(1)))
             .isInstanceOf(NotEnoughBalanceException.class)
             .hasMessage("Payer account does not have enough balance.");
     }

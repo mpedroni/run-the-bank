@@ -12,13 +12,13 @@ public record Transaction(
     TransactionType type
 ) {
 
-    public static Transaction transferOf(Account payer, Account payee, BigDecimal amount) {
+    public static Transaction create(Account payer, Account payee, BigDecimal amount, TransactionType type) {
         return new Transaction(
             UUID.randomUUID(),
             payer,
             payee,
             amount,
-            TransactionType.TRANSFER
+            type
         );
     }
 }

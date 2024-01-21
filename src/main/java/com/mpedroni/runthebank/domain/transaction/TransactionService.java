@@ -14,7 +14,7 @@ public class TransactionService {
         this.transactionGateway = transactionGateway;
     }
 
-    public Transaction createTransaction(Account payer, Account payee, BigDecimal amount) {
+    public Transaction createTransaction(Account payer, Account payee, BigDecimal amount, TransactionType type) {
         if (payer.id().equals(payee.id())) {
             throw new ValidationError("Payer and payee cannot be the same.");
         }
@@ -35,9 +35,13 @@ public class TransactionService {
             throw new NotEnoughBalanceException("Payer account does not have enough balance.");
         }
 
-        var transaction = Transaction.transferOf(payer, payee, amount);
+        var transaction = Transaction.create(payer, payee, amount, type);
         transactionGateway.create(transaction);
 
         return transaction;
+    }
+
+    public Transaction transferOf(Account payer, Account payer1, BigDecimal anAmount) {
+        return createTransaction(payer, payer1, anAmount, TransactionType.TRANSFER);
     }
 }
