@@ -52,7 +52,7 @@ public class TransactionE2ETest {
         var payer = anAccount(1);
         var payee = anAccount(2);
 
-        mvc.perform(post("/transactions")
+        mvc.perform(post("/transfers")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
@@ -63,5 +63,10 @@ public class TransactionE2ETest {
                 """.formatted(payer.id(), payee.id(), 100.0)))
             .andExpect(status().isConflict())
             .andExpect(content().string("Payer account does not have enough balance."));
+    }
+
+    @Test
+    void increaseAccountBalanceByAmountOnDeposit() {
+
     }
 }

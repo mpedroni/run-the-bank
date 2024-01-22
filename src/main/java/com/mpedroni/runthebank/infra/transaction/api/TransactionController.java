@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/transactions")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -23,8 +22,8 @@ public class TransactionController {
         this.accountService = clientService;
     }
 
-    @PostMapping
-    public ResponseEntity<?> createTransaction(@RequestBody CreateTransactionRequest request) {
+    @PostMapping("/transfers")
+    public ResponseEntity<?> createTransaction(@RequestBody CreateTransferRequest request) {
         var payer = accountService.findById(request.payerAccountId());
         if (payer.isEmpty()) {
             return ResponseEntity.badRequest().body("Payer account does not exists.");
