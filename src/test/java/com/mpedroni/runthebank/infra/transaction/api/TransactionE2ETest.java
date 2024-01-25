@@ -16,10 +16,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TransactionE2ETest {
+class TransactionE2ETest {
     @Autowired
     MockMvc mvc;
 
@@ -48,20 +49,50 @@ public class TransactionE2ETest {
 
         return account;
     }
-    @Test
-    void throwsWhenPayerHasNotEnoughBalance() throws Exception {
-        var payer = anAccount(1);
-        var payee = anAccount(2);
 
+    void aDepositOf(UUID accountId, float amount) throws Exception {
+        mvc.perform(post("/deposits")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                {
+                    "accountId": "%s",
+                    "amount": %f
+                }
+                """.formatted(accountId, amount)))
+            .andExpect(status().isCreated());
+    }
+
+    void aTransferOf(UUID payerId, UUID payeeId, float amount) throws Exception {
         mvc.perform(post("/transfers")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
                 {
                     "payerAccountId": "%s",
                     "payeeAccountId": "%s",
                     "amount": %f
                 }
-                """.formatted(payer.id(), payee.id(), 100.0)))
+                """.formatted(payerId, payeeId, amount)))
+            .andExpect(status().isCreated());
+    }
+
+    ResultActions aTransferWithResultsOf(UUID payerId, UUID payeeId, float amount) throws Exception {
+        return mvc.perform(post("/transfers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                {
+                    "payerAccountId": "%s",
+                    "payeeAccountId": "%s",
+                    "amount": %f
+                }
+                """.formatted(payerId, payeeId, amount)));
+    }
+
+    @Test
+    void throwsWhenPayerHasNotEnoughBalance() throws Exception {
+        var payer = anAccount(1);
+        var payee = anAccount(2);
+
+        aTransferWithResultsOf(payer.id(), payee.id(), 100)
             .andExpect(status().isConflict())
             .andExpect(content().string("Payer account does not have enough balance."));
     }
@@ -70,15 +101,7 @@ public class TransactionE2ETest {
     void increaseAccountBalanceByAmountOnDeposit() throws Exception {
         var account = anAccount(1);
 
-        mvc.perform(post("/deposits")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                {
-                    "accountId": "%s",
-                    "amount": %f
-                }
-                """.formatted(account.id(), 100.0)))
-            .andExpect(status().isCreated());
+        aDepositOf(account.id(), 100);
 
         var updatedAccount = accountGateway.findById(account.id()).get();
 
@@ -90,26 +113,8 @@ public class TransactionE2ETest {
         var payer = anAccount(1);
         var payee = anAccount(2);
 
-        mvc.perform(post("/deposits")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                {
-                    "accountId": "%s",
-                    "amount": %f
-                }
-                """.formatted(payer.id(), 200.0)))
-            .andExpect(status().isCreated());
-
-        mvc.perform(post("/transfers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                {
-                    "payerAccountId": "%s",
-                    "payeeAccountId": "%s",
-                    "amount": %f
-                }
-                """.formatted(payer.id(), payee.id(), 100.0)))
-            .andExpect(status().isCreated());
+        aDepositOf(payer.id(), 200);
+        aTransferOf(payer.id(), payee.id(), 100);
 
         var balance = accountGateway.findById(payer.id()).get().balance().floatValue();
 
