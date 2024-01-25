@@ -3,7 +3,6 @@ package com.mpedroni.runthebank.infra.account.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.mpedroni.runthebank.infra.transaction.persistence.TransactionJpaEntity;
-import com.mpedroni.runthebank.infra.transaction.persistence.TransactionRepository;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
