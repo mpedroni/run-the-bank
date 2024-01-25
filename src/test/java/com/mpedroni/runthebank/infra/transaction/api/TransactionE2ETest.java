@@ -1,5 +1,6 @@
 package com.mpedroni.runthebank.infra.transaction.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -66,7 +67,21 @@ public class TransactionE2ETest {
     }
 
     @Test
-    void increaseAccountBalanceByAmountOnDeposit() {
+    void increaseAccountBalanceByAmountOnDeposit() throws Exception {
+        var account = anAccount(1);
 
+        mvc.perform(post("/deposits")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                {
+                    "accountId": "%s",
+                    "amount": %f
+                }
+                """.formatted(account.id(), 100.0)))
+            .andExpect(status().isCreated());
+
+        var updatedAccount = accountGateway.findById(account.id()).get();
+
+        assertThat(updatedAccount.balance().floatValue()).isEqualTo(100.0f);
     }
 }

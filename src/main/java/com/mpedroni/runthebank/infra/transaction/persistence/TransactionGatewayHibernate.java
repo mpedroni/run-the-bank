@@ -14,9 +14,12 @@ public class TransactionGatewayHibernate implements TransactionGateway {
 
     @Override
     public void create(Transaction transaction) {
+        var payer = transaction.payer();
+        var payerId = payer == null ? null : payer.id();
+
         var entity = new TransactionJpaEntity(
             transaction.id(),
-            transaction.payer().id(),
+            payerId,
             transaction.payee().id(),
             transaction.amount()
         );

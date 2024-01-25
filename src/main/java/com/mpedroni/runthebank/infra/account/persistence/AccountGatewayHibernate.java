@@ -2,6 +2,7 @@ package com.mpedroni.runthebank.infra.account.persistence;
 
 import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.account.AccountGateway;
+import com.mpedroni.runthebank.domain.transaction.TransactionType;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,9 +42,12 @@ public class AccountGatewayHibernate implements AccountGateway {
         var balance = accountRepository.findTransactionsOf(id)
             .stream()
             .map(transaction -> {
-                var isDebit = transaction.getPayerId().equals(id);
+                var type = transaction.getType();
                 var amount = transaction.getAmount();
 
+                if(type.equals(TransactionType.DEPOSIT)) return amount;
+
+                var isDebit = transaction.getPayerId().equals(id);
                 return isDebit ? amount.negate() : amount;
             })
             .reduce(BigDecimal.ZERO, BigDecimal::add);

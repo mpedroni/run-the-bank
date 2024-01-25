@@ -7,10 +7,9 @@ import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController("/transactions")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -22,8 +21,8 @@ public class TransactionController {
         this.accountService = clientService;
     }
 
-    @PostMapping("/transfers")
-    public ResponseEntity<?> createTransaction(@RequestBody CreateTransferRequest request) {
+    @PostMapping("transfers")
+    public ResponseEntity<?> transfer(@RequestBody CreateTransferRequest request) {
         var payer = accountService.findById(request.payerAccountId());
         if (payer.isEmpty()) {
             return ResponseEntity.badRequest().body("Payer account does not exists.");
@@ -34,8 +33,22 @@ public class TransactionController {
             return ResponseEntity.badRequest().body("Payee account does not exists.");
         }
 
-        var transaction = transactionService.createTransaction(payer.get(), payee.get(),
-            BigDecimal.valueOf(request.amount()), request.type());
+        var transaction = transactionService.transfer(payer.get(), payee.get(),
+            BigDecimal.valueOf(request.amount()));
+
+        return ResponseEntity.created(URI.create("/transactions/" + transaction.id())).build();
+    }
+
+    @PostMapping("deposits")
+    public ResponseEntity<?> deposit(@RequestBody CreateDepositRequest request) {
+        var account = accountService.findById(request.accountId());
+
+        if (account.isEmpty()) {
+            return ResponseEntity.badRequest().body("Account does not exists.");
+        }
+
+        var transaction = transactionService.deposit(account.get(),
+            BigDecimal.valueOf(request.amount()));
 
         return ResponseEntity.created(URI.create("/transactions/" + transaction.id())).build();
     }

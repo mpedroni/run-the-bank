@@ -3,6 +3,7 @@ package com.mpedroni.runthebank.infra.account.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.mpedroni.runthebank.infra.transaction.persistence.TransactionJpaEntity;
+import com.mpedroni.runthebank.infra.transaction.persistence.TransactionRepository;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,9 +38,8 @@ public class AccountGatewayHibernateIntegrationTest {
     }
 
     static TransactionJpaEntity aTransactionAsPayee(UUID accountId, double amount) {
-        var id = UUID.randomUUID();
         var payerId = UUID.randomUUID();
-        return new TransactionJpaEntity(id, payerId, accountId, BigDecimal.valueOf(amount));
+        return TransactionJpaEntity.transferOf(payerId, accountId, BigDecimal.valueOf(amount));
     }
 
     @Test
