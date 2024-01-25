@@ -84,4 +84,35 @@ public class TransactionE2ETest {
 
         assertThat(updatedAccount.balance().floatValue()).isEqualTo(100.0f);
     }
+
+    @Test
+    void decreaseAccountBalanceByAmountOnTransfer() throws Exception {
+        var payer = anAccount(1);
+        var payee = anAccount(2);
+
+        mvc.perform(post("/deposits")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                {
+                    "accountId": "%s",
+                    "amount": %f
+                }
+                """.formatted(payer.id(), 200.0)))
+            .andExpect(status().isCreated());
+
+        mvc.perform(post("/transfers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                {
+                    "payerAccountId": "%s",
+                    "payeeAccountId": "%s",
+                    "amount": %f
+                }
+                """.formatted(payer.id(), payee.id(), 100.0)))
+            .andExpect(status().isCreated());
+
+        var balance = accountGateway.findById(payer.id()).get().balance().floatValue();
+
+        assertThat(balance).isEqualTo(100.0f);
+    }
 }
