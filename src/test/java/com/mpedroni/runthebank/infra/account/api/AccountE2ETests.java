@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AccountE2ETests {
+class AccountE2ETests {
     @Autowired
     MockMvc mvc;
 
@@ -24,12 +24,12 @@ public class AccountE2ETests {
     AccountRepository accountRepository;
 
     @BeforeEach
-    public void cleanDatabase() {
+    void cleanDatabase() {
         accountRepository.deleteAll();
     }
 
     @Test
-    public void createsANewAccountWithTheGivenData() throws Exception {
+    void createsANewAccountWithTheGivenData() throws Exception {
         var aClientId = UUID.randomUUID();
         var anAgency = 1234;
         var content = """

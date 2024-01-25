@@ -10,7 +10,7 @@ import com.mpedroni.runthebank.domain.ValidationError;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class AccountServiceUnitTest {
+class AccountServiceUnitTest {
     AccountGateway accountGateway = mock(AccountGateway.class);
 
     AccountService sut = new AccountService(accountGateway);
@@ -42,8 +42,9 @@ public class AccountServiceUnitTest {
     @Test
     void throwsWhenTheGivenAgencyDoesNotExist() {
         var anInvalidAgency = 0;
+        var aClientId = UUID.randomUUID();
 
-        assertThatThrownBy(() -> sut.createAccountFor(UUID.randomUUID(), anInvalidAgency))
+        assertThatThrownBy(() -> sut.createAccountFor(aClientId, anInvalidAgency))
             .isInstanceOf(ValidationError.class)
             .hasMessage("The agency does not exists.");
     }

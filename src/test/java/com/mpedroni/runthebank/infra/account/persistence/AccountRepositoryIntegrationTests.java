@@ -52,7 +52,7 @@ class AccountRepositoryIntegrationTests {
         var lastAccountNumberForAgencyWithoutAccounts = accountRepository.findLastAccountNumberFrom(agencyWithoutAccounts);
 
         assertThat(lastAccountNumberAgencyWithAccounts).isEqualTo(anAccountNumber);
-        assertThat(lastAccountNumberForAgencyWithoutAccounts).isEqualTo(0);
+        assertThat(lastAccountNumberForAgencyWithoutAccounts).isZero();
     }
 
 
@@ -62,7 +62,7 @@ class AccountRepositoryIntegrationTests {
 
         var foundLastAccountNumber = accountRepository.findLastAccountNumberFrom(anAgency);
 
-        assertThat(foundLastAccountNumber).isEqualTo(0);
+        assertThat(foundLastAccountNumber).isZero();
     }
 
     @Test
