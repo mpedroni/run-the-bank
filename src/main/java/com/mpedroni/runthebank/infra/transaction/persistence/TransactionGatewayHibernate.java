@@ -21,7 +21,8 @@ public class TransactionGatewayHibernate implements TransactionGateway {
             transaction.id(),
             payerId,
             transaction.payee().id(),
-            transaction.amount()
+            transaction.amount(),
+            transaction.type()
         );
 
         transactionRepository.save(entity);

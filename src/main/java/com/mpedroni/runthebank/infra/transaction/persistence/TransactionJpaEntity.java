@@ -24,18 +24,16 @@ public class TransactionJpaEntity {
     public TransactionJpaEntity() {
     }
 
-    public TransactionJpaEntity(UUID id, UUID payerId, UUID payeeId, BigDecimal amount) {
+    public TransactionJpaEntity(UUID id, UUID payerId, UUID payeeId, BigDecimal amount, TransactionType type) {
         this.id = id;
         this.payerId = payerId;
         this.payeeId = payeeId;
         this.amount = amount;
-        this.type = payerId == null ? TransactionType.DEPOSIT : TransactionType.TRANSFER;
+        this.type = type;
     }
 
     public static TransactionJpaEntity transferOf(UUID payerId, UUID payeeId, BigDecimal amount) {
-        var transaction = new TransactionJpaEntity(UUID.randomUUID(), payerId, payeeId, amount);
-        transaction.setType(TransactionType.TRANSFER);
-        return transaction;
+        return new TransactionJpaEntity(UUID.randomUUID(), payerId, payeeId, amount, TransactionType.TRANSFER);
     }
 
     public UUID getId() {

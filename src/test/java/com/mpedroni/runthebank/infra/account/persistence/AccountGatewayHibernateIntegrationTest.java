@@ -32,9 +32,8 @@ public class AccountGatewayHibernateIntegrationTest {
     }
 
     static TransactionJpaEntity aTransactionAsPayer(UUID accountId, double amount) {
-        var id = UUID.randomUUID();
         var payeeId = UUID.randomUUID();
-        return new TransactionJpaEntity(id, accountId, payeeId, BigDecimal.valueOf(amount));
+        return TransactionJpaEntity.transferOf(accountId, payeeId, BigDecimal.valueOf(amount));
     }
 
     static TransactionJpaEntity aTransactionAsPayee(UUID accountId, double amount) {
