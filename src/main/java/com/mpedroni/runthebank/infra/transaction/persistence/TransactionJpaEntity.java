@@ -1,6 +1,7 @@
 package com.mpedroni.runthebank.infra.transaction.persistence;
 
 import com.mpedroni.runthebank.domain.transaction.TransactionType;
+import com.mpedroni.runthebank.domain.transaction.TransactionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -21,6 +22,8 @@ public class TransactionJpaEntity {
 
     private TransactionType type;
 
+    private TransactionStatus status;
+
     public TransactionJpaEntity() {
     }
 
@@ -30,6 +33,7 @@ public class TransactionJpaEntity {
         this.payeeId = payeeId;
         this.amount = amount;
         this.type = type;
+        this.status = TransactionStatus.PENDING;
     }
 
     public static TransactionJpaEntity transferOf(UUID payerId, UUID payeeId, BigDecimal amount) {
@@ -74,5 +78,13 @@ public class TransactionJpaEntity {
 
     public void setType(TransactionType type) {
         this.type = type;
+    }
+
+    public TransactionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TransactionStatus status) {
+        this.status = status;
     }
 }

@@ -9,7 +9,8 @@ public record Transaction(
     Account payer,
     Account payee,
     BigDecimal amount,
-    TransactionType type
+    TransactionType type,
+    TransactionStatus status
 ) {
 
     public static Transaction create(Account payer, Account payee, BigDecimal amount, TransactionType type) {
@@ -18,7 +19,8 @@ public record Transaction(
             payer,
             payee,
             amount,
-            type
+            type,
+            TransactionStatus.COMPLETED
         );
     }
 }
