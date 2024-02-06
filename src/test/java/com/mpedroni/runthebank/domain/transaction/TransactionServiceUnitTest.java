@@ -1,7 +1,9 @@
 package com.mpedroni.runthebank.domain.transaction;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.mpedroni.runthebank.domain.ValidationError;
 import com.mpedroni.runthebank.domain.account.Account;
@@ -11,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class TransactionServiceUnitTest {
+class TransactionServiceUnitTest {
     TransactionGateway transactionGateway = mock(TransactionGateway.class);
 
     TransactionService sut = new TransactionService(transactionGateway);
@@ -84,5 +86,16 @@ public class TransactionServiceUnitTest {
         assertThatThrownBy(() -> sut.transfer(payer, payee, BigDecimal.valueOf(1)))
             .isInstanceOf(NotEnoughBalanceException.class)
             .hasMessage("Payer account does not have enough balance.");
+    }
+
+    @Test
+    void createsAPendingDeposit() {
+        var aDeposit = sut.deposit(anActiveAccount(1), anAmount);
+
+        verify(transactionGateway).create(
+            aDeposit
+        );
+
+        assertThat(aDeposit.status()).isEqualTo(TransactionStatus.PENDING);
     }
 }

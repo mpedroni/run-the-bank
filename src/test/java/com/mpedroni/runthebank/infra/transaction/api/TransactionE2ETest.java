@@ -7,7 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.account.AccountGateway;
+import com.mpedroni.runthebank.domain.transaction.TransactionStatus;
 import com.mpedroni.runthebank.infra.account.persistence.AccountRepository;
+import com.mpedroni.runthebank.infra.transaction.persistence.TransactionRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,9 @@ class TransactionE2ETest {
 
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    TransactionRepository transactionRepository;
 
     @Autowired
     AccountGateway accountGateway;
@@ -98,26 +103,14 @@ class TransactionE2ETest {
     }
 
     @Test
-    void increaseAccountBalanceByAmountOnDeposit() throws Exception {
+    void createsAPendingTransaction() throws Exception {
         var account = anAccount(1);
 
         aDepositOf(account.id(), 100);
 
-        var updatedAccount = accountGateway.findById(account.id()).get();
+        var transaction = transactionRepository.findAll().get(0);
 
-        assertThat(updatedAccount.balance().floatValue()).isEqualTo(100.0f);
-    }
-
-    @Test
-    void decreaseAccountBalanceByAmountOnTransfer() throws Exception {
-        var payer = anAccount(1);
-        var payee = anAccount(2);
-
-        aDepositOf(payer.id(), 200);
-        aTransferOf(payer.id(), payee.id(), 100);
-
-        var balance = accountGateway.findById(payer.id()).get().balance().floatValue();
-
-        assertThat(balance).isEqualTo(100.0f);
+        assertThat(transaction.getAmount().floatValue()).isEqualTo(100.0f);
+        assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.PENDING);
     }
 }

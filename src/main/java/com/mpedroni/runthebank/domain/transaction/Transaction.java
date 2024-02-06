@@ -20,7 +20,7 @@ public record Transaction(
             payee,
             amount,
             type,
-            TransactionStatus.COMPLETED
+            TransactionStatus.PENDING
         );
     }
 }
