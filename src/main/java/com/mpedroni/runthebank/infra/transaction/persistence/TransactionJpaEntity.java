@@ -27,17 +27,21 @@ public class TransactionJpaEntity {
     public TransactionJpaEntity() {
     }
 
-    public TransactionJpaEntity(UUID id, UUID payerId, UUID payeeId, BigDecimal amount, TransactionType type) {
+    public TransactionJpaEntity(UUID id, UUID payerId, UUID payeeId, BigDecimal amount, TransactionType type, TransactionStatus status) {
         this.id = id;
         this.payerId = payerId;
         this.payeeId = payeeId;
         this.amount = amount;
         this.type = type;
-        this.status = TransactionStatus.COMPLETED;
+        this.status = status;
     }
 
     public static TransactionJpaEntity transferOf(UUID payerId, UUID payeeId, BigDecimal amount) {
-        return new TransactionJpaEntity(UUID.randomUUID(), payerId, payeeId, amount, TransactionType.TRANSFER);
+        return new TransactionJpaEntity(UUID.randomUUID(), payerId, payeeId, amount, TransactionType.TRANSFER, TransactionStatus.COMPLETED);
+    }
+
+    public static TransactionJpaEntity depositOf(UUID accountId, BigDecimal amount, TransactionStatus status) {
+        return new TransactionJpaEntity(UUID.randomUUID(), null, accountId, amount, TransactionType.DEPOSIT, status);
     }
 
     public UUID getId() {

@@ -32,14 +32,18 @@ class AccountGatewayHibernateIntegrationTest {
         return new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), 1234, number);
     }
 
-    static TransactionJpaEntity aTransactionAsPayer(UUID accountId, double amount) {
+    static TransactionJpaEntity aTransferAsPayer(UUID accountId, double amount) {
         var payeeId = UUID.randomUUID();
         return TransactionJpaEntity.transferOf(accountId, payeeId, BigDecimal.valueOf(amount));
     }
 
-    static TransactionJpaEntity aTransactionAsPayee(UUID accountId, double amount) {
+    static TransactionJpaEntity aTransferAsPayee(UUID accountId, double amount) {
         var payerId = UUID.randomUUID();
         return TransactionJpaEntity.transferOf(payerId, accountId, BigDecimal.valueOf(amount));
+    }
+
+    static TransactionJpaEntity aDeposit(UUID accountId, double amount, TransactionStatus status) {
+        return TransactionJpaEntity.depositOf(accountId, BigDecimal.valueOf(amount), status);
     }
 
     @Test
@@ -59,9 +63,9 @@ class AccountGatewayHibernateIntegrationTest {
 
         em.persist(anAccount);
 
-        em.persist(aTransactionAsPayee(anAccount.getId(), 100));
-        em.persist(aTransactionAsPayee(anAccount.getId(), 100));
-        em.persist(aTransactionAsPayer(anAccount.getId(), 50));
+        em.persist(aTransferAsPayee(anAccount.getId(), 100));
+        em.persist(aTransferAsPayee(anAccount.getId(), 100));
+        em.persist(aTransferAsPayer(anAccount.getId(), 50));
 
         var balance = sut.findById(anAccount.getId()).get().balance();
 
@@ -74,16 +78,9 @@ class AccountGatewayHibernateIntegrationTest {
 
         em.persist(anAccount);
 
-        var pendingDeposit = new TransactionJpaEntity();
-        pendingDeposit.setId(UUID.randomUUID());
-        pendingDeposit.setPayeeId(anAccount.getId());
-        pendingDeposit.setType(TransactionType.DEPOSIT);
-        pendingDeposit.setStatus(TransactionStatus.PENDING);
-        pendingDeposit.setAmount(BigDecimal.valueOf(100));
-
-        em.persist(aTransactionAsPayee(anAccount.getId(), 100));
-        em.persist(aTransactionAsPayee(anAccount.getId(), 100));
-        em.persist(pendingDeposit);
+        em.persist(aTransferAsPayee(anAccount.getId(), 100));
+        em.persist(aTransferAsPayee(anAccount.getId(), 100));
+        em.persist(aDeposit(anAccount.getId(), 100, TransactionStatus.PENDING));
 
         var balance = sut.findById(anAccount.getId()).get().balance();
 
