@@ -4,6 +4,8 @@ import com.mpedroni.runthebank.domain.transaction.TransactionType;
 import com.mpedroni.runthebank.domain.transaction.TransactionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
@@ -20,8 +22,10 @@ public class TransactionJpaEntity {
     private UUID payeeId;
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
     private TransactionType type;
 
+    @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
     public TransactionJpaEntity() {

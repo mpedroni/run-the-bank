@@ -1,6 +1,8 @@
 package com.mpedroni.runthebank.infra.client.persistence;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.UUID;
@@ -16,6 +18,8 @@ public class ClientJpaEntity {
     private String document;
     private String address;
     private String password;
+
+    @Enumerated(EnumType.STRING)
     private ClientTypeJpa type;
 
     public ClientJpaEntity() {
