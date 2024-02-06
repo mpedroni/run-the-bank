@@ -42,8 +42,26 @@ class AccountGatewayHibernateIntegrationTest {
         return TransactionJpaEntity.transferOf(payerId, accountId, BigDecimal.valueOf(amount));
     }
 
-    static TransactionJpaEntity aDeposit(UUID accountId, double amount, TransactionStatus status) {
-        return TransactionJpaEntity.depositOf(accountId, BigDecimal.valueOf(amount), status);
+    static TransactionJpaEntity aCanceledTransferAsPayee(UUID accountId, double amount) {
+        var transfer = aTransferAsPayee(accountId, amount);
+        transfer.setStatus(TransactionStatus.CANCELED);
+        return transfer;
+    }
+
+    static TransactionJpaEntity aDeposit(UUID accountId, double amount) {
+        return TransactionJpaEntity.depositOf(accountId, BigDecimal.valueOf(amount), TransactionStatus.COMPLETED);
+    }
+
+    static TransactionJpaEntity aPendingDeposit(UUID accountId, double amount) {
+        var deposit = aDeposit(accountId, amount);
+        deposit.setStatus(TransactionStatus.PENDING);
+        return deposit;
+    }
+
+    static TransactionJpaEntity aCanceledDeposit(UUID accountId, double amount) {
+        var deposit = aDeposit(accountId, amount);
+        deposit.setStatus(TransactionStatus.CANCELED);
+        return deposit;
     }
 
     @Test
@@ -80,10 +98,27 @@ class AccountGatewayHibernateIntegrationTest {
 
         em.persist(aTransferAsPayee(anAccount.getId(), 100));
         em.persist(aTransferAsPayee(anAccount.getId(), 100));
-        em.persist(aDeposit(anAccount.getId(), 100, TransactionStatus.PENDING));
+        em.persist(aPendingDeposit(anAccount.getId(), 100));
 
         var balance = sut.findById(anAccount.getId()).get().balance();
 
         assertThat(balance.floatValue()).isEqualTo(200f);
+    }
+
+    @Test
+    void dontConsiderCanceledTransactionsWhenCalculatingBalance() {
+        var anAccount = anAccount(1);
+
+        em.persist(anAccount);
+
+        em.persist(aTransferAsPayee(anAccount.getId(), 25));
+        em.persist(aTransferAsPayee(anAccount.getId(), 50));
+
+        em.persist(aCanceledDeposit(anAccount.getId(), 100));
+        em.persist(aCanceledTransferAsPayee(anAccount.getId(), 100));
+
+        var balance = sut.findById(anAccount.getId()).get().balance();
+
+        assertThat(balance.floatValue()).isEqualTo(75f);
     }
 }

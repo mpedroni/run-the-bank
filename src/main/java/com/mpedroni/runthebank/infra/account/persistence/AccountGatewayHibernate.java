@@ -43,9 +43,17 @@ public class AccountGatewayHibernate implements AccountGateway {
         var balance = accountRepository.findTransactionsOf(id)
             .stream()
             .filter(transaction -> {
-                var isTransfer = transaction.getType().equals(TransactionType.TRANSFER);
+                var isCancelled = transaction.getStatus().equals(TransactionStatus.CANCELED);
+                if (isCancelled) return false;
 
-                return isTransfer || transaction.getStatus().equals(TransactionStatus.COMPLETED);
+                var isTransfer = transaction.getType().equals(TransactionType.TRANSFER);
+                var isCompleted = transaction.getStatus().equals(TransactionStatus.COMPLETED);
+
+                /*
+                * Transfers are considered even when are pending to avoid negative balance.
+                * Deposits are considered only when completed.
+                * */
+                return isTransfer || isCompleted;
             })
             .map(transaction -> {
                 var type = transaction.getType();
