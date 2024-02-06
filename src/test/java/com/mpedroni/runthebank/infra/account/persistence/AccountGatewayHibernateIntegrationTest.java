@@ -2,6 +2,8 @@ package com.mpedroni.runthebank.infra.account.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.mpedroni.runthebank.domain.transaction.TransactionStatus;
+import com.mpedroni.runthebank.domain.transaction.TransactionType;
 import com.mpedroni.runthebank.infra.transaction.persistence.TransactionJpaEntity;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -64,5 +66,27 @@ class AccountGatewayHibernateIntegrationTest {
         var balance = sut.findById(anAccount.getId()).get().balance();
 
         assertThat(balance.floatValue()).isEqualTo(150f);
+    }
+
+    @Test
+    void dontConsiderPendingDepositsWhenCalculatingBalance() {
+        var anAccount = anAccount(1);
+
+        em.persist(anAccount);
+
+        var pendingDeposit = new TransactionJpaEntity();
+        pendingDeposit.setId(UUID.randomUUID());
+        pendingDeposit.setPayeeId(anAccount.getId());
+        pendingDeposit.setType(TransactionType.DEPOSIT);
+        pendingDeposit.setStatus(TransactionStatus.PENDING);
+        pendingDeposit.setAmount(BigDecimal.valueOf(100));
+
+        em.persist(aTransactionAsPayee(anAccount.getId(), 100));
+        em.persist(aTransactionAsPayee(anAccount.getId(), 100));
+        em.persist(pendingDeposit);
+
+        var balance = sut.findById(anAccount.getId()).get().balance();
+
+        assertThat(balance.floatValue()).isEqualTo(200f);
     }
 }

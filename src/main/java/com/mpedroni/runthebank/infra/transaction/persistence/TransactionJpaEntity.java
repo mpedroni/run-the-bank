@@ -33,7 +33,7 @@ public class TransactionJpaEntity {
         this.payeeId = payeeId;
         this.amount = amount;
         this.type = type;
-        this.status = TransactionStatus.PENDING;
+        this.status = TransactionStatus.COMPLETED;
     }
 
     public static TransactionJpaEntity transferOf(UUID payerId, UUID payeeId, BigDecimal amount) {
