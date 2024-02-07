@@ -1,9 +1,11 @@
 package com.mpedroni.runthebank.infra.transaction.persistence;
 
+import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.transaction.Transaction;
 import com.mpedroni.runthebank.domain.transaction.TransactionGateway;
 import com.mpedroni.runthebank.domain.transaction.events.TransactionCreatedEvent;
 import com.mpedroni.runthebank.infra.services.EventService;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,8 @@ public class TransactionGatewayHibernate implements TransactionGateway {
     private final TransactionRepository transactionRepository;
     private final EventService eventService;
 
-    public TransactionGatewayHibernate(TransactionRepository transactionRepository, EventService eventService) {
+    public TransactionGatewayHibernate(TransactionRepository transactionRepository,
+        EventService eventService) {
         this.transactionRepository = transactionRepository;
         this.eventService = eventService;
     }
@@ -41,13 +44,38 @@ public class TransactionGatewayHibernate implements TransactionGateway {
     @Override
     public Optional<Transaction> findById(UUID id) {
         return transactionRepository.findById(id)
-            .map(entity -> new Transaction(
-                entity.getId(),
-                null,
-                null,
-                entity.getAmount(),
-                entity.getType(),
-                entity.getStatus()
-            ));
+            .map(t -> {
+                var payee = Account.restore(
+                    t.getPayee().getId(),
+                    t.getPayee().getClientId(),
+                    t.getPayee().getAgency(),
+                    t.getPayee().getNumber(),
+                    BigDecimal.ZERO,
+                    t.getPayee().getStatus());
+
+                Account payer = null;
+                if(t.getPayer() != null) {
+                    payer = Account.restore(
+                        t.getPayer().getId(),
+                        t.getPayer().getClientId(),
+                        t.getPayer().getAgency(),
+                        t.getPayer().getNumber(),
+                        BigDecimal.ZERO,
+                        t.getPayer().getStatus());
+                }
+
+                return new Transaction(t.getId(), payer, payee, t.getAmount(), t.getType(),
+                    t.getStatus());
+            });
+    }
+
+    @Override
+    public void save(Transaction transaction) {
+        var entity = transactionRepository.findById(transaction
+                .id())
+            .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        entity.setStatus(transaction.status());
+        transactionRepository.save(entity);
     }
 }
