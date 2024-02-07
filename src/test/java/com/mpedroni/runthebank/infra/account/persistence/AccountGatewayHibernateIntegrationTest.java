@@ -3,7 +3,6 @@ package com.mpedroni.runthebank.infra.account.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.mpedroni.runthebank.domain.transaction.TransactionStatus;
-import com.mpedroni.runthebank.domain.transaction.TransactionType;
 import com.mpedroni.runthebank.infra.transaction.persistence.TransactionJpaEntity;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -26,99 +25,88 @@ class AccountGatewayHibernateIntegrationTest {
     @BeforeEach
     void setup() {
         sut = new AccountGatewayHibernate(accountRepository);
+        accountRepository.deleteAll();
     }
 
-    static AccountJpaEntity anAccount(int number) {
-        return new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), 1234, number);
+    AccountJpaEntity anAccount(int number) {
+        var account = new AccountJpaEntity(UUID.randomUUID(), UUID.randomUUID(), 1234, number);
+        em.persist(account);
+        return account;
     }
 
-    static TransactionJpaEntity aTransferAsPayer(UUID accountId, double amount) {
-        var payeeId = UUID.randomUUID();
-        return TransactionJpaEntity.transferOf(accountId, payeeId, BigDecimal.valueOf(amount));
-    }
-
-    static TransactionJpaEntity aTransferAsPayee(UUID accountId, double amount) {
-        var payerId = UUID.randomUUID();
-        return TransactionJpaEntity.transferOf(payerId, accountId, BigDecimal.valueOf(amount));
-    }
-
-    static TransactionJpaEntity aCanceledTransferAsPayee(UUID accountId, double amount) {
-        var transfer = aTransferAsPayee(accountId, amount);
-        transfer.setStatus(TransactionStatus.CANCELED);
+    TransactionJpaEntity aTransferFrom(AccountJpaEntity from, AccountJpaEntity to, double amount) {
+        var transfer = TransactionJpaEntity.transferOf(from.getId(), to.getId(), BigDecimal.valueOf(amount));
+        transfer.setStatus(TransactionStatus.COMPLETED);
+        em.persist(transfer);
         return transfer;
     }
 
-    static TransactionJpaEntity aDeposit(UUID accountId, double amount) {
-        return TransactionJpaEntity.depositOf(accountId, BigDecimal.valueOf(amount), TransactionStatus.COMPLETED);
+
+    void aCanceledTransferFrom(AccountJpaEntity payer, AccountJpaEntity payee, double amount) {
+        var transfer = aTransferFrom(payer, payee, amount);
+        transfer.setStatus(TransactionStatus.CANCELED);
+        em.persist(transfer);
     }
 
-    static TransactionJpaEntity aPendingDeposit(UUID accountId, double amount) {
-        var deposit = aDeposit(accountId, amount);
+    TransactionJpaEntity aDeposit(AccountJpaEntity account, double amount) {
+        var deposit = TransactionJpaEntity.depositOf(account, BigDecimal.valueOf(amount), TransactionStatus.COMPLETED);
+        em.persist(deposit);
+        return deposit;
+    }
+
+    void aPendingDeposit(AccountJpaEntity account, double amount) {
+        var deposit = aDeposit(account, amount);
         deposit.setStatus(TransactionStatus.PENDING);
-        return deposit;
+        em.persist(deposit);
     }
 
-    static TransactionJpaEntity aCanceledDeposit(UUID accountId, double amount) {
-        var deposit = aDeposit(accountId, amount);
+    void aCanceledDeposit(AccountJpaEntity account, double amount) {
+        var deposit = aDeposit(account, amount);
         deposit.setStatus(TransactionStatus.CANCELED);
-        return deposit;
+        em.persist(deposit);
+    }
+
+    float balanceOf(AccountJpaEntity account) {
+        return sut.findById(account.getId()).orElseThrow().balance().floatValue();
     }
 
     @Test
     void returnsZeroAsBalanceWhenAccountHasNoAssociatedTransactions() {
         var anAccount = anAccount(1);
 
-        em.persist(anAccount);
-
-        var balance = sut.findById(anAccount.getId()).get().balance();
-
-        assertThat(balance).isEqualTo(BigDecimal.ZERO);
+        assertThat(balanceOf(anAccount)).isEqualTo(0f);
     }
 
     @Test
     void returnsAccountBalanceAsTheSumOfAllItsAssociatedTransactions() {
-        var anAccount = anAccount(1);
+        var john = anAccount(1);
+        var jane = anAccount(2);
 
-        em.persist(anAccount);
+        aDeposit(jane, 200);
+        aTransferFrom(jane, john, 100);
+        aTransferFrom(john, jane, 50);
 
-        em.persist(aTransferAsPayee(anAccount.getId(), 100));
-        em.persist(aTransferAsPayee(anAccount.getId(), 100));
-        em.persist(aTransferAsPayer(anAccount.getId(), 50));
-
-        var balance = sut.findById(anAccount.getId()).get().balance();
-
-        assertThat(balance.floatValue()).isEqualTo(150f);
+        assertThat(balanceOf(john)).isEqualTo(50f);
+        assertThat(balanceOf(jane)).isEqualTo(150f);
     }
 
     @Test
     void dontConsiderPendingDepositsWhenCalculatingBalance() {
         var anAccount = anAccount(1);
 
-        em.persist(anAccount);
+        aPendingDeposit(anAccount, 100);
 
-        em.persist(aTransferAsPayee(anAccount.getId(), 100));
-        em.persist(aTransferAsPayee(anAccount.getId(), 100));
-        em.persist(aPendingDeposit(anAccount.getId(), 100));
-
-        var balance = sut.findById(anAccount.getId()).get().balance();
-
-        assertThat(balance.floatValue()).isEqualTo(200f);
+        assertThat(balanceOf(anAccount)).isEqualTo(0f);
     }
 
     @Test
     void dontConsiderCanceledTransactionsWhenCalculatingBalance() {
-        var anAccount = anAccount(1);
+        var john = anAccount(1);
+        var jane = anAccount(2);
 
-        em.persist(anAccount);
+        aCanceledDeposit(john, 100);
+        aCanceledTransferFrom(jane, john, 100);
 
-        em.persist(aTransferAsPayee(anAccount.getId(), 25));
-        em.persist(aTransferAsPayee(anAccount.getId(), 50));
-
-        em.persist(aCanceledDeposit(anAccount.getId(), 100));
-        em.persist(aCanceledTransferAsPayee(anAccount.getId(), 100));
-
-        var balance = sut.findById(anAccount.getId()).get().balance();
-
-        assertThat(balance.floatValue()).isEqualTo(75f);
+        assertThat(balanceOf(john)).isEqualTo(0f);
     }
 }

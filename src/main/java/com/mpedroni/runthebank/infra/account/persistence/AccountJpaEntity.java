@@ -1,10 +1,19 @@
 package com.mpedroni.runthebank.infra.account.persistence;
 
+import com.mpedroni.runthebank.domain.account.AccountStatus;
+import com.mpedroni.runthebank.infra.transaction.persistence.TransactionJpaEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Entity(name = "Account")
 @Table(name = "accounts", uniqueConstraints = {
@@ -17,6 +26,15 @@ public class AccountJpaEntity {
     private UUID clientId;
     private int agency;
     private int number;
+
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
+
+    @OneToMany(mappedBy = "payee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TransactionJpaEntity> earnings;
+
+    @OneToMany(mappedBy = "payer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TransactionJpaEntity> expenses;
 
     public AccountJpaEntity() {
     }
@@ -58,5 +76,19 @@ public class AccountJpaEntity {
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status;
+    }
+
+    public List<TransactionJpaEntity> getTransactions() {
+        return Stream.of(earnings, expenses)
+            .flatMap(List::stream)
+            .toList();
     }
 }

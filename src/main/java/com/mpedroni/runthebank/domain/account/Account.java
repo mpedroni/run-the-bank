@@ -29,6 +29,17 @@ public record Account(
         return new Account(UUID.randomUUID(), clientId, agency, number, BigDecimal.ZERO, AccountStatus.ACTIVE);
     }
 
+    public static Account restore(
+        UUID id,
+        UUID clientId,
+        int agency,
+        int number,
+        BigDecimal balance,
+        AccountStatus status
+    ) {
+        return new Account(id, clientId, agency, number, balance, status);
+    }
+
     public boolean isActive() {
         return status == AccountStatus.ACTIVE;
     }
