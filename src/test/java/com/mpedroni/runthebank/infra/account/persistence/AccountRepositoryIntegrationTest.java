@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.dao.DataIntegrityViolationException;
 
 @DataJpaTest
-class AccountRepositoryIntegrationTests {
+class AccountRepositoryIntegrationTest {
     @Autowired
     AccountRepository accountRepository;
 

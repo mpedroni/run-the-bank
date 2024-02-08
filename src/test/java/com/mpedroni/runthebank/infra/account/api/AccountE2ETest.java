@@ -14,7 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @E2ETest
-class AccountE2ETests {
+class AccountE2ETest {
     @Autowired
     MockMvc mvc;
 
