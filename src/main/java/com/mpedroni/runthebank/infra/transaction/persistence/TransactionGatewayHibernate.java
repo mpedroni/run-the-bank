@@ -54,7 +54,7 @@ public class TransactionGatewayHibernate implements TransactionGateway {
                     t.getPayee().getStatus());
 
                 Account payer = null;
-                if(t.getPayer() != null) {
+                if (t.getPayer() != null) {
                     payer = Account.restore(
                         t.getPayer().getId(),
                         t.getPayer().getClientId(),
@@ -70,10 +70,10 @@ public class TransactionGatewayHibernate implements TransactionGateway {
     }
 
     @Override
-    public void save(Transaction transaction) {
+    public void update(Transaction transaction) {
         var entity = transactionRepository.findById(transaction
                 .id())
-            .orElseThrow(() -> new RuntimeException("Transaction not found"));
+            .orElseThrow();
 
         entity.setStatus(transaction.status());
         transactionRepository.save(entity);

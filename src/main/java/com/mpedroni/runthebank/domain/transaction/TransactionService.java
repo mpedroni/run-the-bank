@@ -5,6 +5,7 @@ import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.transaction.exceptions.InactiveAccountException;
 import com.mpedroni.runthebank.domain.transaction.exceptions.NotEnoughBalanceException;
 import java.math.BigDecimal;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,5 +55,11 @@ public class TransactionService {
         }
 
         return createTransaction(payer, payee, amount, TransactionType.TRANSFER);
+    }
+
+    public void cancel(UUID uuid) {
+        var transaction = transactionGateway.findById(uuid).orElseThrow();
+        transaction.cancel();
+        transactionGateway.update(transaction);
     }
 }

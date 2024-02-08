@@ -102,4 +102,7 @@ public final class Transaction {
             "status=" + status + ']';
     }
 
+    public void cancel() {
+        status = TransactionStatus.CANCELED;
+    }
 }

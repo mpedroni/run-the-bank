@@ -5,6 +5,7 @@ import com.mpedroni.runthebank.domain.transaction.TransactionService;
 import java.math.BigDecimal;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,5 +52,11 @@ public class TransactionController {
             BigDecimal.valueOf(request.amount()));
 
         return ResponseEntity.created(URI.create("/transactions/" + transaction.id())).build();
+    }
+
+    @PatchMapping("transactions/cancel")
+    public ResponseEntity<?> cancel(@RequestBody CancelTransactionRequest request) {
+        transactionService.cancel(request.transactionId());
+        return ResponseEntity.noContent().build();
     }
 }

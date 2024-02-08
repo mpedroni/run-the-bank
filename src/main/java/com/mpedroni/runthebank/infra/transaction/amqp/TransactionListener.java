@@ -79,11 +79,11 @@ public class TransactionListener {
         }
 
         transaction.complete();
-        transactionGateway.save(transaction);
+        transactionGateway.update(transaction);
     }
 
     private void handleDeposit(Transaction transaction) {
         transaction.complete();
-        transactionGateway.save(transaction);
+        transactionGateway.update(transaction);
     }
 }

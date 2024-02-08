@@ -1,6 +1,7 @@
 package com.mpedroni.runthebank.infra.transaction.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,8 +16,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -89,6 +88,27 @@ class TransactionE2ETest {
 
         assertThat(transaction.getAmount().floatValue()).isEqualTo(100.0f);
         assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.PENDING);
+    }
+
+    @Test
+    void cancelsATransaction() throws Exception {
+        var account = anAccount(1);
+
+        aDepositOf(account.id(), 100);
+
+        var depositId = transactionRepository.findAll().getFirst().getId();
+
+        mvc.perform(patch("/transactions/cancel")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                {
+                    "transactionId": "%s"
+                }
+                """.formatted(depositId)))
+            .andExpect(status().isNoContent());
+
+        var deposit = transactionRepository.findById(depositId).orElseThrow();
+        assertThat(deposit.getStatus()).isEqualTo(TransactionStatus.CANCELED);
     }
 
     @Test
