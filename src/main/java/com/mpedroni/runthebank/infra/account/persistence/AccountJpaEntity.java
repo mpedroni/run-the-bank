@@ -44,6 +44,7 @@ public class AccountJpaEntity {
         this.clientId = clientId;
         this.agency = agency;
         this.number = number;
+        this.status = AccountStatus.ACTIVE;
     }
 
     public UUID getId() {
@@ -90,5 +91,9 @@ public class AccountJpaEntity {
         return Stream.of(earnings, expenses)
             .flatMap(List::stream)
             .toList();
+    }
+
+    public void deactivate() {
+        this.status = AccountStatus.INACTIVE;
     }
 }

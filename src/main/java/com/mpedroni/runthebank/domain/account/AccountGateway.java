@@ -7,4 +7,5 @@ public interface AccountGateway {
     void create(Account account);
     int findLastAccountNumberFrom(int agency);
     Optional<Account> findById(UUID id);
+    void deactivate(Account account);
 }

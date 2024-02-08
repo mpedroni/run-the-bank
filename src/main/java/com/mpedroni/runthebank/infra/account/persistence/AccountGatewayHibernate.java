@@ -67,12 +67,20 @@ public class AccountGatewayHibernate implements AccountGateway {
             })
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return account.map(accountJpaEntity -> new Account(
+        return account.map(accountJpaEntity -> Account.restore(
             accountJpaEntity.getId(),
             accountJpaEntity.getClientId(),
             accountJpaEntity.getAgency(),
             accountJpaEntity.getNumber(),
-            balance
+            balance,
+            accountJpaEntity.getStatus()
         ));
+    }
+
+    @Override
+    public void deactivate(Account account) {
+        var entity = accountRepository.findById(account.id()).orElseThrow();
+        entity.deactivate();
+        accountRepository.save(entity);
     }
 }

@@ -67,19 +67,6 @@ class TransactionE2ETest {
             .andExpect(status().isCreated());
     }
 
-    void aTransferOf(UUID payerId, UUID payeeId, float amount) throws Exception {
-        mvc.perform(post("/transfers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                {
-                    "payerAccountId": "%s",
-                    "payeeAccountId": "%s",
-                    "amount": %f
-                }
-                """.formatted(payerId, payeeId, amount)))
-            .andExpect(status().isCreated());
-    }
-
     ResultActions aTransferWithResultsOf(UUID payerId, UUID payeeId, float amount) throws Exception {
         return mvc.perform(post("/transfers")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -93,6 +80,18 @@ class TransactionE2ETest {
     }
 
     @Test
+    void createsAPendingTransaction() throws Exception {
+        var account = anAccount(1);
+
+        aDepositOf(account.id(), 100);
+
+        var transaction = transactionRepository.findAll().get(0);
+
+        assertThat(transaction.getAmount().floatValue()).isEqualTo(100.0f);
+        assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.PENDING);
+    }
+
+    @Test
     void throwsWhenPayerHasNotEnoughBalance() throws Exception {
         var payer = anAccount(1);
         var payee = anAccount(2);
@@ -103,14 +102,26 @@ class TransactionE2ETest {
     }
 
     @Test
-    void createsAPendingTransaction() throws Exception {
-        var account = anAccount(1);
+    void throwsWhenPayerIsInactive() throws Exception {
+        var payer = anAccount(1);
+        var payee = anAccount(2);
 
-        aDepositOf(account.id(), 100);
+        accountGateway.deactivate(payer);
 
-        var transaction = transactionRepository.findAll().get(0);
+        aTransferWithResultsOf(payer.id(), payee.id(), 100)
+            .andExpect(status().isConflict())
+            .andExpect(content().string("Payer account is not active."));
+    }
 
-        assertThat(transaction.getAmount().floatValue()).isEqualTo(100.0f);
-        assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.PENDING);
+    @Test
+    void throwsWhenPayeeIsInactive() throws Exception {
+        var payer = anAccount(1);
+        var payee = anAccount(2);
+
+        accountGateway.deactivate(payee);
+
+        aTransferWithResultsOf(payer.id(), payee.id(), 100)
+            .andExpect(status().isConflict())
+            .andExpect(content().string("Payee account is not active."));
     }
 }

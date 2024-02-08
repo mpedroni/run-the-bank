@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.mpedroni.runthebank.domain.ValidationError;
 import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.account.AccountStatus;
+import com.mpedroni.runthebank.domain.transaction.exceptions.InactiveAccountException;
 import com.mpedroni.runthebank.domain.transaction.exceptions.NotEnoughBalanceException;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -54,7 +55,7 @@ class TransactionServiceUnitTest {
         var payee = anActiveAccount(2);
 
         assertThatThrownBy(() -> sut.transfer(payer, payee, anAmount))
-            .isInstanceOf(ValidationError.class)
+            .isInstanceOf(InactiveAccountException.class)
             .hasMessage("Payer account is not active.");
     }
 
@@ -64,7 +65,7 @@ class TransactionServiceUnitTest {
         var payee = anInactiveAccount(2);
 
         assertThatThrownBy(() -> sut.transfer(payer, payee, anAmount))
-            .isInstanceOf(ValidationError.class)
+            .isInstanceOf(InactiveAccountException.class)
             .hasMessage("Payee account is not active.");
     }
 
@@ -83,7 +84,9 @@ class TransactionServiceUnitTest {
         var payer = anActiveAccount(1);
         var payee = anActiveAccount(2);
 
-        assertThatThrownBy(() -> sut.transfer(payer, payee, BigDecimal.valueOf(1)))
+        var amount = BigDecimal.valueOf(1);
+
+        assertThatThrownBy(() -> sut.transfer(payer, payee, amount))
             .isInstanceOf(NotEnoughBalanceException.class)
             .hasMessage("Payer account does not have enough balance.");
     }
