@@ -2,9 +2,7 @@ package com.mpedroni.runthebank.infra.services.impl;
 
 import com.mpedroni.runthebank.infra.services.EventService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.stereotype.Service;
 
-@Service
 public class RabbitMqEventService implements EventService {
     private final RabbitTemplate rabbitTemplate;
 
