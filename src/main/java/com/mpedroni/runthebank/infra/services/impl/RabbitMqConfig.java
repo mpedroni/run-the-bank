@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.infra.services.amqp;
+package com.mpedroni.runthebank.infra.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.AcknowledgeMode;

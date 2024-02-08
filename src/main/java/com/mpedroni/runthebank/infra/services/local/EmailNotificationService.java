@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.infra.services.smtp;
+package com.mpedroni.runthebank.infra.services.local;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpedroni.runthebank.infra.services.NotificationService;

@@ -1,4 +1,4 @@
-package com.mpedroni.runthebank.infra.services.amqp;
+package com.mpedroni.runthebank.infra.services.impl;
 
 import com.mpedroni.runthebank.infra.services.EventService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
