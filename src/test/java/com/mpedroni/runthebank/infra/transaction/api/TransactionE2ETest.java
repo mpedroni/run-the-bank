@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.mpedroni.runthebank.E2ETest;
 import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.account.AccountGateway;
 import com.mpedroni.runthebank.domain.transaction.TransactionStatus;
@@ -20,8 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@E2ETest
 class TransactionE2ETest {
     @Autowired
     MockMvc mvc;
