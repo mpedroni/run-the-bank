@@ -25,7 +25,8 @@ public class AccountController {
             request.agency()
         );
 
-        return ResponseEntity.created(URI.create(Integer.toString(account.number()))).build();
+        var location = URI.create("accounts/" + account.id());
+        return ResponseEntity.created(location).build();
     }
 
     @PatchMapping("deactivate")

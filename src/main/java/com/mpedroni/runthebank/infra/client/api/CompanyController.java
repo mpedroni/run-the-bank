@@ -26,6 +26,7 @@ public class CompanyController {
             request.password()
         );
 
-        return ResponseEntity.created(URI.create(company.id().toString())).build();
+        var location = URI.create("companies/" + company.id());
+        return ResponseEntity.created(location).build();
     }
 }

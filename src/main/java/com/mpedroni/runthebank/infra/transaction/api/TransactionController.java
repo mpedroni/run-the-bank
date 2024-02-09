@@ -4,6 +4,7 @@ import com.mpedroni.runthebank.domain.account.AccountService;
 import com.mpedroni.runthebank.domain.transaction.TransactionService;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,10 @@ public class TransactionController {
         this.accountService = clientService;
     }
 
+    static URI locationFor(UUID id) {
+        return URI.create("transactions/" + id);
+    }
+
     @PostMapping("transfers")
     public ResponseEntity<?> transfer(@RequestBody CreateTransferRequest request) {
         var payer = accountService.findById(request.payerAccountId());
@@ -34,10 +39,10 @@ public class TransactionController {
             return ResponseEntity.badRequest().body("Payee account does not exists.");
         }
 
-        var transaction = transactionService.transfer(payer.get(), payee.get(),
+        var transfer = transactionService.transfer(payer.get(), payee.get(),
             BigDecimal.valueOf(request.amount()));
 
-        return ResponseEntity.created(URI.create("/transactions/" + transaction.id())).build();
+        return ResponseEntity.created(locationFor(transfer.id())).build();
     }
 
     @PostMapping("deposits")
@@ -48,10 +53,10 @@ public class TransactionController {
             return ResponseEntity.badRequest().body("Account does not exists.");
         }
 
-        var transaction = transactionService.deposit(account.get(),
+        var deposit = transactionService.deposit(account.get(),
             BigDecimal.valueOf(request.amount()));
 
-        return ResponseEntity.created(URI.create("/transactions/" + transaction.id())).build();
+        return ResponseEntity.created(locationFor(deposit.id())).build();
     }
 
     @PatchMapping("transactions/cancel")
