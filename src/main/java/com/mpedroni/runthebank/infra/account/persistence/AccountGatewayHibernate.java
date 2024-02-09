@@ -30,6 +30,13 @@ public class AccountGatewayHibernate implements AccountGateway {
     }
 
     @Override
+    public void update(Account account) {
+        var entity = accountRepository.findById(account.id()).orElseThrow();
+        entity.setStatus(account.status());
+        accountRepository.save(entity);
+    }
+
+    @Override
     public int findLastAccountNumberFrom(int agency) {
         return accountRepository.findLastAccountNumberFrom(agency);
     }

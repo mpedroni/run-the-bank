@@ -96,4 +96,8 @@ public class AccountJpaEntity {
     public void deactivate() {
         this.status = AccountStatus.INACTIVE;
     }
+
+    public boolean isActive() {
+        return this.status == AccountStatus.ACTIVE;
+    }
 }

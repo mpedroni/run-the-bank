@@ -3,6 +3,7 @@ package com.mpedroni.runthebank.infra.account.api;
 import com.mpedroni.runthebank.domain.account.AccountService;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,5 +26,11 @@ public class AccountController {
         );
 
         return ResponseEntity.created(URI.create(Integer.toString(account.number()))).build();
+    }
+
+    @PatchMapping("deactivate")
+    public ResponseEntity<?> deactivate(@RequestBody DeactivateAccountRequest request) {
+        accountService.deactivate(request.accountId());
+        return ResponseEntity.noContent().build();
     }
 }

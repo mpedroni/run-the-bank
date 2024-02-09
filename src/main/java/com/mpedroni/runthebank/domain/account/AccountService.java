@@ -37,4 +37,11 @@ public class AccountService {
     public Optional<Account> findById(UUID id) {
         return accountGateway.findById(id);
     }
+
+    public void deactivate(UUID id) {
+        var account = findById(id).orElseThrow(() -> new ValidationError("Account not found."));
+
+        account.deactivate();
+        accountGateway.update(account);
+    }
 }

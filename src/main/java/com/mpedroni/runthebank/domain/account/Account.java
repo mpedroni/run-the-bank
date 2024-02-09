@@ -120,4 +120,7 @@ public final class Account {
             "status=" + status + ']';
     }
 
+    public void deactivate() {
+        status = AccountStatus.INACTIVE;
+    }
 }
