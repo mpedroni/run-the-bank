@@ -5,6 +5,7 @@ import com.mpedroni.runthebank.domain.account.AccountGateway;
 import com.mpedroni.runthebank.domain.transaction.TransactionStatus;
 import com.mpedroni.runthebank.domain.transaction.TransactionType;
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -53,14 +54,17 @@ public class AccountGatewayHibernate implements AccountGateway {
                 var isCancelled = transaction.getStatus().equals(TransactionStatus.CANCELED);
                 if (isCancelled) return false;
 
-                var isTransfer = transaction.getType().equals(TransactionType.TRANSFER);
                 var isCompleted = transaction.getStatus().equals(TransactionStatus.COMPLETED);
+                if (isCompleted) return true;
+
+                var isTransfer = transaction.getType().equals(TransactionType.TRANSFER);
+                var isPayer = Objects.equals(transaction.getPayerId(), id);
 
                 /*
-                * Transfers are considered even when are pending to avoid negative balance.
-                * Deposits are considered only when completed.
+                * Transfers can be considered even when pending, as long as the account is the payer.
+                * The idea is to reserve this amount already planned to be transferred.
                 * */
-                return isTransfer || isCompleted;
+                return isTransfer && isPayer;
             })
             .map(transaction -> {
                 var type = transaction.getType();
