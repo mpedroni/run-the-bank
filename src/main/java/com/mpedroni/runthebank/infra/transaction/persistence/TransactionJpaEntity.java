@@ -12,7 +12,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity(name = "Transaction")
 @Table(name = "transactions")
@@ -42,6 +45,11 @@ public class TransactionJpaEntity {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
+    @CreationTimestamp
+    private Instant createdAt;
+    @UpdateTimestamp
+    private Instant updatedAt;
+
     public TransactionJpaEntity() {
     }
 
@@ -64,6 +72,22 @@ public class TransactionJpaEntity {
         TransactionStatus status) {
         return new TransactionJpaEntity(UUID.randomUUID(), null, account.getId(), amount,
             TransactionType.DEPOSIT, status);
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public UUID getId() {
