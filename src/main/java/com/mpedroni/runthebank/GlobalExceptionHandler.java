@@ -24,7 +24,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             case NotEnoughBalanceException ignored -> status = HttpStatus.CONFLICT;
             case InactiveAccountException ignored -> status = HttpStatus.CONFLICT;
             case ValidationError ignored -> status = HttpStatus.BAD_REQUEST;
-            default -> status = HttpStatus.INTERNAL_SERVER_ERROR;
+            case ApplicationException ignored -> status = HttpStatus.CONFLICT;
         }
 
         return this.handleExceptionInternal(ex, message, new HttpHeaders(), status, request);
