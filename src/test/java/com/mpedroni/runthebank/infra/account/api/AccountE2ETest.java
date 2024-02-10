@@ -8,7 +8,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.mpedroni.runthebank.E2ETest;
 import com.mpedroni.runthebank.infra.account.persistence.AccountJpaEntity;
 import com.mpedroni.runthebank.infra.account.persistence.AccountRepository;
+import com.mpedroni.runthebank.infra.client.persistence.ClientJpaEntity;
+import com.mpedroni.runthebank.infra.client.persistence.ClientRepository;
+import com.mpedroni.runthebank.infra.client.persistence.ClientTypeJpa;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +21,19 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @E2ETest
 class AccountE2ETest {
+    private static ClientJpaEntity john;
+
     @Autowired
     MockMvc mvc;
 
     @Autowired
     AccountRepository accountRepository;
+
+    @BeforeAll
+    static void setUp(@Autowired ClientRepository clientRepository) {
+        john = new ClientJpaEntity(UUID.randomUUID(), "John Doe", "12345678900", "Address", "password", ClientTypeJpa.CUSTOMER);
+        clientRepository.save(john);
+    }
 
     @BeforeEach
     void cleanDatabase() {
@@ -30,14 +42,13 @@ class AccountE2ETest {
 
     @Test
     void createsANewAccountWithTheGivenData() throws Exception {
-        var aClientId = UUID.randomUUID();
         var anAgency = 1234;
         var content = """
             {
                 "clientId": "%s",
                 "agency": "%s"
             }
-            """.formatted(aClientId, anAgency);
+            """.formatted(john.getId(), anAgency);
 
         mvc.perform(post("/accounts")
             .contentType(MediaType.APPLICATION_JSON)
@@ -49,7 +60,7 @@ class AccountE2ETest {
 
         var account = accounts.stream().findFirst().orElse(null);
         assertThat(account).isNotNull();
-        assertThat(account.getClientId()).isEqualTo(aClientId);
+        assertThat(account.getClientId()).isEqualTo(john.getId());
         assertThat(account.getAgency()).isEqualTo(anAgency);
         assertThat(account.getNumber()).isEqualTo(1);
     }
@@ -57,8 +68,7 @@ class AccountE2ETest {
     @Test
     void deactivatesAnAccount() throws Exception {
         var accountId = UUID.randomUUID();
-        var clientId = UUID.randomUUID();
-        var account = accountRepository.save(new AccountJpaEntity(accountId, clientId, 1234, 1));
+        var account = accountRepository.save(new AccountJpaEntity(accountId, john.getId(), 1234, 1));
 
         var content = """
             {

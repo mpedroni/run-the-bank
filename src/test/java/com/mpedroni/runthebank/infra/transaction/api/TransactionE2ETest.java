@@ -11,8 +11,13 @@ import com.mpedroni.runthebank.domain.account.Account;
 import com.mpedroni.runthebank.domain.account.AccountGateway;
 import com.mpedroni.runthebank.domain.transaction.TransactionStatus;
 import com.mpedroni.runthebank.infra.account.persistence.AccountRepository;
+import com.mpedroni.runthebank.infra.client.persistence.ClientJpaEntity;
+import com.mpedroni.runthebank.infra.client.persistence.ClientRepository;
+import com.mpedroni.runthebank.infra.client.persistence.ClientTypeJpa;
 import com.mpedroni.runthebank.infra.transaction.persistence.TransactionRepository;
+import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +27,9 @@ import org.springframework.test.web.servlet.ResultActions;
 
 @E2ETest
 class TransactionE2ETest {
+    private static ClientJpaEntity john;
+    private static ClientJpaEntity jane;
+
     @Autowired
     MockMvc mvc;
 
@@ -34,17 +42,24 @@ class TransactionE2ETest {
     @Autowired
     AccountGateway accountGateway;
 
+    @BeforeAll
+    static void setUp(@Autowired ClientRepository clientRepository) {
+        john = new ClientJpaEntity(UUID.randomUUID(), "John Doe", "12345678900", "Address", "password", ClientTypeJpa.CUSTOMER);
+        jane = new ClientJpaEntity(UUID.randomUUID(), "Jane Doe", "12345678901", "Address", "password", ClientTypeJpa.CUSTOMER);
+        clientRepository.saveAll(List.of(john, jane));
+    }
+
+
     @BeforeEach
-    void cleanDatabase () {
+    void cleanDatabase() {
         accountRepository.deleteAll();
     }
 
-    Account anAccount(int number) {
-        var clientId = UUID.randomUUID();
+    Account anAccount(int number, ClientJpaEntity client) {
         var agency = 1234;
 
         var account = Account.create(
-            clientId,
+            client.getId(),
             agency,
             number
         );
@@ -58,18 +73,19 @@ class TransactionE2ETest {
         mvc.perform(post("/deposits")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                {
-                    "accountId": "%s",
-                    "amount": %f
-                }
-                """.formatted(accountId, amount)))
+                    {
+                        "accountId": "%s",
+                        "amount": %f
+                    }
+                    """.formatted(accountId, amount)))
             .andExpect(status().isCreated());
     }
 
-    ResultActions aTransferWithResultsOf(UUID payerId, UUID payeeId, float amount) throws Exception {
+    ResultActions aTransferWithResultsOf(UUID payerId, UUID payeeId, float amount)
+        throws Exception {
         return mvc.perform(post("/transfers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
                 {
                     "payerAccountId": "%s",
                     "payeeAccountId": "%s",
@@ -80,7 +96,7 @@ class TransactionE2ETest {
 
     @Test
     void createsAPendingTransaction() throws Exception {
-        var account = anAccount(1);
+        var account = anAccount(1, john);
 
         aDepositOf(account.id(), 100);
 
@@ -92,7 +108,7 @@ class TransactionE2ETest {
 
     @Test
     void cancelsATransaction() throws Exception {
-        var account = anAccount(1);
+        var account = anAccount(1, john);
 
         aDepositOf(account.id(), 100);
 
@@ -101,10 +117,10 @@ class TransactionE2ETest {
         mvc.perform(patch("/transactions/cancel")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                {
-                    "transactionId": "%s"
-                }
-                """.formatted(depositId)))
+                    {
+                        "transactionId": "%s"
+                    }
+                    """.formatted(depositId)))
             .andExpect(status().isNoContent());
 
         var deposit = transactionRepository.findById(depositId).orElseThrow();
@@ -113,8 +129,8 @@ class TransactionE2ETest {
 
     @Test
     void throwsWhenPayerHasNotEnoughBalance() throws Exception {
-        var payer = anAccount(1);
-        var payee = anAccount(2);
+        var payer = anAccount(1, john);
+        var payee = anAccount(2, jane);
 
         aTransferWithResultsOf(payer.id(), payee.id(), 100)
             .andExpect(status().isConflict())
@@ -123,8 +139,8 @@ class TransactionE2ETest {
 
     @Test
     void throwsWhenPayerIsInactive() throws Exception {
-        var payer = anAccount(1);
-        var payee = anAccount(2);
+        var payer = anAccount(1, john);
+        var payee = anAccount(2, jane);
 
         accountGateway.deactivate(payer);
 
@@ -135,8 +151,8 @@ class TransactionE2ETest {
 
     @Test
     void throwsWhenPayeeIsInactive() throws Exception {
-        var payer = anAccount(1);
-        var payee = anAccount(2);
+        var payer = anAccount(1, john);
+        var payee = anAccount(2, jane);
 
         accountGateway.deactivate(payee);
 

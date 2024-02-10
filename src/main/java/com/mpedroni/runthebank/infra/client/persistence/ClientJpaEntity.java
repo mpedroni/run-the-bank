@@ -1,11 +1,16 @@
 package com.mpedroni.runthebank.infra.client.persistence;
 
+import com.mpedroni.runthebank.infra.account.persistence.AccountJpaEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -27,6 +32,10 @@ public class ClientJpaEntity {
     private Instant updatedAt;
     @Enumerated(EnumType.STRING)
     private ClientTypeJpa type;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AccountJpaEntity> accounts;
+
 
     public ClientJpaEntity() {
     }
