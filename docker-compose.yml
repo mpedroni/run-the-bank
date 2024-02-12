@@ -1,8 +1,33 @@
 version: '3'
 
 services:
+  app:
+    build: .
+    volumes:
+      - app_data:/opt/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+    networks:
+      - default
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+
   rabbitmq:
     image: rabbitmq:management
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - default
+
+networks:
+    default:
+        driver: bridge
+
+volumes:
+    rabbitmq_data: {}
+    app_data: {}
