@@ -1,6 +1,13 @@
 # run-the-bank
 
-Este repositório contém a implementação de um sistema bancário simples, que permite a criação de clientes, contas, depósitos e transferências entre contas. A aplicação foi desenvolvida utilizando a linguagem de programação Java, na versão 21, e o framework Spring Boot, na versão 3. Também foram utilizados o message broker RabbitMQ e o banco de dados H2.
+Este repositório contém a implementação de um sistema bancário simples, que permite a criação de clientes, contas, depósitos e transferências entre contas. 
+
+## Tecnologias utilizadas
+
+- Java 21
+- Spring Boot 3
+- RabbitMQ
+- H2 Database
 
 ## Como executar
 
